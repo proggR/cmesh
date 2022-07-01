@@ -57,8 +57,36 @@ func DIDSession() string{
     return IamSession
 }
 
+func DIDAuth(genIds bool) string {
+    fmt.Println("DID Identity Network Auth Handshake Started")
 
-func DIDSessionCall(did int) string {
+    if ssiAddress == "" {
+      fmt.Println("DID Handshake Failed: No Root SSI ID")
+      if genIds {
+        rootSSIGen()
+        return DIDGen()
+      } else { return "" }
+    } else if len(dids) == 0 {
+      fmt.Println("DID Handshake Failed: No DID Identities")
+      if genIds {
+        return DIDGen()
+      } else { return "" }
+    }
+    return dIDSessionCall(0)
+}
+
+func DIDSessionHangup(){
+    if sessionAlive {
+      sessionAlive = false
+      IamSession = ""
+      fmt.Println(fmt.Sprintf("DID Identity Network Session #%d Terminated",sessionsCount))
+    } else {
+      fmt.Println("No DID Identity Network Session To Terminated")
+    }
+}
+
+
+func dIDSessionCall(did int) string {
     fmt.Println(fmt.Sprintf("Generating DID Identity Session Request #%d",sessionsCount+1))
     var callString string = genSignCallString(did, sessionsCount)
     fmt.Println("DID Identity Session Request Generated")
@@ -98,7 +126,7 @@ func DIDSessionAnswer(did int, callString string, sig uint32) string {
     var answerString string = genAnswerString(expectedCall,answerAckSig)
 
     fmt.Println("DID Identity Session Request Answered")
-    return DIDSessionConfirm(answerString, sig, answerAckSig)
+    return dIDSessionConfirm(answerString, sig, answerAckSig)
 }
 
 func genAnswerString(expectedCall string, answerSig uint32) string {
@@ -113,7 +141,7 @@ func expectedAnswerSig(callString string) uint32{
     return hash(ssiKey+":"+callString)
 }
 
-func DIDSessionConfirm(answerString string, sig uint32, confirmerSig uint32) string {
+func dIDSessionConfirm(answerString string, sig uint32, confirmerSig uint32) string {
   var confirmedSig uint32 = signConfirm(answerString, sig, confirmerSig)
   var confirmString string = genConfirmString(answerString,confirmedSig)
   fmt.Println(fmt.Sprintf("Generating DID Identity Session Confirmation #%d ID %d for call %s",sessionsCount+1, confirmedSig, answerString))
@@ -208,21 +236,12 @@ func signConsent(confirmString string) uint32 {
   return hash(ssiKey+":"+confirmString)
 }
 
-func DIDSessionHangup(){
-    if sessionAlive {
-      sessionAlive = false
-      IamSession = ""
-      fmt.Println(fmt.Sprintf("DID Identity Network Session #%d Terminated",sessionsCount))
-    } else {
-      fmt.Println("No DID Identity Network Session To Terminated")
+func rootSSIGen() string {
+    if ssiAddress == ""{
+      ssiAddress = "0xSSI:0"
+      // ssi = true
+      fmt.Println("Root SSI Identity Generated")
     }
-}
-
-
-func RootSSIGen() string {
-    ssiAddress = "0xSSI:0"
-    // ssi = true
-    fmt.Println("Root SSI Identity Generated")
     return ssiAddress
 }
 
@@ -232,25 +251,7 @@ func DIDGen() string {
     var address string = fmt.Sprintf(didPrefix,)
     dids = append(dids,address)
     fmt.Println("DID Identity Generated")
-    return DIDSessionCall(idx)
-}
-
-func DIDAuth(genIds bool) string {
-    fmt.Println("DID Identity Network Auth Handshake Started")
-
-    if ssiAddress == "" {
-      fmt.Println("DID Handshake Failed: No Root SSI ID")
-      if genIds {
-        RootSSIGen()
-        return DIDGen()
-      } else { return "" }
-    } else if len(dids) == 0 {
-      fmt.Println("DID Handshake Failed: No DID Identities")
-      if genIds {
-        return DIDGen()
-      } else { return "" }
-    }
-    return DIDSessionCall(0)
+    return dIDSessionCall(idx)
 }
 
 func DIDAttrRead(key string){
