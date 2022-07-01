@@ -30,7 +30,7 @@ IRMA is a beautiful spec, and in this case not being dependent or built for bloc
 
 This is the only part of the toy that "functions". In `node/main.go` there's an `iam_test` function that walks through the IRMA handshake process, and then spams it to confirm sessionless requests are rejected. Very much a toy given the private keys are shared between "client" and "server" (main and iam) and its using a hash function that's more convenient than secure. Also doesn't currently contain any of the attribute level functionality of IRMA systems.
 
-Docs for existing toy version can be found in [iam/README](iam/README.md)
+Docs for existing toy version can be found in [node/iam/README](node/iam/README.md)
 
 ### Distributed Storage: HyperCore/Hyperbee/Hyperdrive
 
