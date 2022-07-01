@@ -3,10 +3,9 @@
 * Process to port this to the mock provider implementing this IF started.
 * Once finished this should contain only:
 * IAM, IRMAProviderIF; provider, service; IAMService(provider)
-* Snapshot of toy version captured in providers/toy to test hot swapping providers later
 */
 
-package iam
+package iam_toy
 import (
   "fmt"
   "hash/fnv"
@@ -25,7 +24,7 @@ type IRMAProviderIF interface {
     // dIDSessionCall() string
     DIDSessionAnswer(int,string,uint32) string
     // dIDSessionConfirm() string
-    DIDSessionConsent(int, string, string, uint32) string
+    DIDSessionConsent() string
     DIDSessionHangup()
 }
 
