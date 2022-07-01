@@ -10,12 +10,18 @@ package iam
 import (
   "fmt"
   "hash/fnv"
+
   //"node/iam/providers/mock"
   //"vendor/cmesh/provider"
 )
 
 type IAM struct {
   provider IRMAProviderIF
+}
+
+type JWT struct {
+  Public string
+  private string
 }
 
 type IRMAProviderIF interface {

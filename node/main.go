@@ -3,6 +3,7 @@ import (
   "fmt"
   "hash/fnv"
   "node/iam"
+  stateProvider "node/state/providers/mock"
   // iam "node/iam/providers/mock"
   // "node/events/providers/mock"
   // "node/state/providers/mock"
@@ -59,7 +60,19 @@ func iam_test(){
 
   fmt.Println("Client: Call Consented")
 
+  state_test(consentString)
+
   iam.DIDSessionHangup()
+}
+
+func state_test(consentString string){
+  jwt := iam.JWT{Public:consentString}
+  fmt.Println("Client: Running State Read Check With JWT")
+  stateProvider.Provider.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
+  fmt.Println("Client: Running State Write Check With JWT")
+  stateProvider.Provider.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
+  fmt.Println("Client: Running State Write Check With JWT")
+  stateProvider.Provider.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
 }
 
 func expectedAnswerSig(callString string) uint32{
