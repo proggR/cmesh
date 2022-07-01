@@ -60,7 +60,7 @@ As HTTP did for the the web, CMTP allows a client to pass a request to a backend
 
 One core aim of CMTP that makes it different is that its aim is to enable an auth'd by default environment flexible enough to protect privacy and enable multiple online identities to be managed from a core root identity. CMTP messages require a valid JWT, and without will be rejected with a status code instructing clients to prompt the identity creation/sync process/dialog. No valid IAM session, no network access for you.
 
-Note: Currently this spec below is just capturing HTTP as pseudocode. CMTP development will likely not see much new work until the other components are more integrated, but initial HTTP mimicking Structs are loosely defined (though commented out) in `vendor/cmtp/cmtp.go` so any developments in the protocol will take place there.
+Note: Currently this spec below is just capturing HTTP as pseudocode. CMTP ideation & development will likely not see much new work until the other components are more integrated, but initial HTTP mimicking Structs are loosely defined (though commented out) in `vendor/cmtp/cmtp.go` so any developments in the protocol will take place there.
 
 <pre>
 
@@ -106,31 +106,3 @@ message_compiler(message){
 }
 
 </pre>
-
-
-## Project Hierarchy
-
-`/`
-
-`->assets/ (README/shared assets)`
-
-`->node/ (node/mining app)`
-
-`->->node/assembly(/providers)? (WASMI component & providers)`
-
-`->->node/consensus(/providers)? (consensus cluster/swarm component & providers)`
-
-`->->node/events(/providers)? (event sourcing component & providers)`
-
-`->->node/iam(/providers)? (SSI/DID component & providers)`
-
-`->->node/state(/providers)? (persistent state component & providers)`
-
-
-`->client/ (client app)`
-
-`->->client/events(/providers)? (event sourcing component & providers)`
-
-`->->client/iam(/providers)? (SSI/DID component & providers)`
-
-`->->client/state(/providers)? (persistent state component & providers)
