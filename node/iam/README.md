@@ -91,3 +91,27 @@ Signs the... confirm string? Brain was mush, will tidy later.
 ## Public Facing Attribute Related Functions
 
 Documentation to follow once actual cryptography in place to enable IRMA's attribute oriented featureset.
+
+## Unit Test Coverage
+
+### Public Function Coverage
+
+#### TestDIDSessionUnauthed
+
+Test to ensure that an unauthed request does not return an expected call string.
+
+#### TestDIDSessionInvalidAnswer
+
+Test to ensure that a providing an invalid signature with a valid callstring returns an empty string (invalid answer response).
+
+#### TestDIDSessionValidAnswer
+
+Test to ensure that a providing a valid signature with a valid callstring returns a non empty string.
+
+#### TestDIDSessionInvalidConsent
+
+Test to ensure that a providing an invalid signature with a valid confirmation returns an empty string (invalid consent response).
+
+#### TestDIDSessionValidConsent
+
+Test to ensure that a providing a valid signature with a valid confirmation returns a non empty string.
