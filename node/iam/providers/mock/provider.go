@@ -11,16 +11,16 @@ import (
 // Interface type check code. Stashing for later
 // type T struct{}
 // var _ I = T{}       // Verify that T implements I.
-// var _ I = (*T)(nil) // Verify that *T implements I.
+// var _ I = (T)(nil) // Verify that T implements I.
 // Example:
 // var _ iam.IRMAProviderIF = IRMAProvider{}  // Verify that IRMAProvider implements IRMAProviderIF
 // If not implemented: compile time error raised
 
-var Provider IRMAProvider = new(IRMAProvider).Construct()
+// var Provider IRMAProvider = new(IRMAProvider).Construct()
 
 
 type IRMAProvider struct {
-  iamService iam.IAM
+  IAMService iam.IAM
   verifierSsiAddress string
   verifierSsiKey string
   verifierDidIdx int
@@ -40,12 +40,12 @@ type IRMAProvider struct {
   IamSession string
 }
 
-func (p IRMAProvider) Construct() IRMAProvider {
+func (p *IRMAProvider) Construct() IRMAProvider {
   if p.ssiKey == "" {
       p.verifierSsiAddress = "0xSSI:1"
       p.verifierSsiKey = "i ap the egg man"
       p.verifierDidIdx = 1
-      p.ssiKey = "i ap the walrus"
+      p.ssiKey = "i am the walrus"
       p.didAttribute = "name=brando"
       p.sessionsCount = 0
       p.didPrefix ="0xDID:%d"
@@ -53,15 +53,15 @@ func (p IRMAProvider) Construct() IRMAProvider {
       p.didKey = "kookookachoo"
       p.sessionAlive = false
       p.IamSession = ""
-      p.iamService = iam.IAMService(p)
+      // p.iamService = iam.IAMService(&p)
   }
-  return p
+  return *p
 }
 
 // START OF IF IMPLEMENTATION FUNCTIONS
 // (including the private ones I had to comment out of the IF... figure out how that works :\ )
 
-func (p IRMAProvider) DIDGen() string {
+func (p *IRMAProvider) DIDGen() string {
   fmt.Println("Generating DID Identity")
   var idx int = len(p.dids);
   var address string = fmt.Sprintf(p.didPrefix,)
@@ -70,7 +70,7 @@ func (p IRMAProvider) DIDGen() string {
   return p.dIDSessionCall(idx)
 }
 
-func (p IRMAProvider) DIDSession() string {
+func (p *IRMAProvider) DIDSession() string {
   fmt.Println("DID Identity Network Session Fetched")
   if !p.sessionAlive {
     fmt.Println("No Active DID Identity Session")
@@ -87,7 +87,7 @@ func (p IRMAProvider) DIDSession() string {
   return p.IamSession
 }
 
-func (p IRMAProvider) DIDAuth(genIds bool) string {
+func (p *IRMAProvider) DIDAuth(genIds bool) string {
   fmt.Println("DID Identity Network Auth Handshake Started")
 
   if p.ssiAddress == "" {
@@ -105,19 +105,19 @@ func (p IRMAProvider) DIDAuth(genIds bool) string {
   return p.dIDSessionCall(0)
 }
 
-func (p IRMAProvider) dIDSessionCall(did int) string {
+func (p *IRMAProvider) dIDSessionCall(did int) string {
   fmt.Println(fmt.Sprintf("Generating DID Identity Session Request #%d",p.sessionsCount+1))
   var callString string = p.genSignCallString(did, p.sessionsCount)
   fmt.Println("DID Identity Session Request Generated")
   return callString
 }
 
-func (p IRMAProvider) DIDSessionAnswer(did int, callString string, sig uint32) string {
+func (p *IRMAProvider) DIDSessionAnswer(did int, callString string, sig uint32) string {
     var expectedCall string = p.genSignCallString(did,p.sessionsCount)
     var expectedSig uint32 = p.expectedAnswerSig(expectedCall)
 
     if expectedSig != sig {
-      fmt.Println("DID Identity Session Invalid Credentials")
+      fmt.Println(fmt.Sprintf("DID Identity Session Invalid Credentials For DID %d Provider DID Attribute Checked(%s) SSI Checked (%s):\n Expected %d\n Have %d", did, p.didAttribute,p.ssiAddress,expectedSig,sig))
       return ""
     }
     if expectedCall != callString {
@@ -132,18 +132,18 @@ func (p IRMAProvider) DIDSessionAnswer(did int, callString string, sig uint32) s
     return p.dIDSessionConfirm(answerString, sig, answerAckSig)
 }
 
-func (p IRMAProvider) dIDSessionConfirm(answerString string, sig uint32, confirmerSig uint32) string {
+func (p *IRMAProvider) dIDSessionConfirm(answerString string, sig uint32, confirmerSig uint32) string {
   var confirmedSig uint32 = p.signConfirm(answerString, sig, confirmerSig)
   var confirmString string = p.genConfirmString(answerString,confirmedSig)
   fmt.Println(fmt.Sprintf("Generating DID Identity Session Confirmation #%d ID %d for call %s",p.sessionsCount+1, confirmedSig, answerString))
   return confirmString
 }
 
-func (p IRMAProvider) DIDSessionConsent(did int, callString string, confirmString string, sig uint32) string{
+func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmString string, sig uint32) string{
   var expectedCallString string = p.genSignCallString(did,p.sessionsCount)
 
   if expectedCallString != callString {
-    fmt.Println("DID Identity Session Invalid Call String")
+    fmt.Println(fmt.Sprintf("DID Identity Session Invalid Call String:\n Expected %s\n Have %s",expectedCallString,callString))
     return ""
   }
 
@@ -163,7 +163,7 @@ func (p IRMAProvider) DIDSessionConsent(did int, callString string, confirmStrin
   //var expectedConfirmString string = fmt.Sprintf(expectedAnswerSig+":%d", expectedConfirmSig)
 
   if expectedConfirmString != confirmString {
-    fmt.Println(fmt.Sprintf("DID Identity Session Invalid Confirmation String: %s ; Expected: %s", confirmString, expectedConfirmString))
+    fmt.Println(fmt.Sprintf("DID Identity Session Invalid Confirmation String:\n Expected: %s\n Have: %s", expectedConfirmString, confirmString))
     return ""
   }
 
@@ -191,7 +191,7 @@ func (p IRMAProvider) DIDSessionConsent(did int, callString string, confirmStrin
 
 }
 
-func (p IRMAProvider) DIDSessionHangup() {
+func (p *IRMAProvider) DIDSessionHangup() {
   if p.sessionAlive {
     p.sessionAlive = false
     p.IamSession = ""
@@ -206,11 +206,12 @@ func (p IRMAProvider) DIDSessionHangup() {
 // INTERNAL SSI & DID FUNCTIONS
 
 
-func (p IRMAProvider) rootSSIGen() string {
+func (p *IRMAProvider) rootSSIGen() string {
     if p.ssiAddress == ""{
       p.ssiAddress = "0xSSI:0"
+
       // ssi = true
-      fmt.Println("Root SSI Identity Generated")
+      fmt.Println(fmt.Sprintf("Root SSI Identity Generated: Receiver %s",p.ssiAddress))
     }
     return p.ssiAddress
 }
@@ -220,47 +221,47 @@ func (p IRMAProvider) rootSSIGen() string {
 
 // INTERNAL HANDSHAKE STRING & SIGNING FUNCTIONS
 
-func (p IRMAProvider) genSignCallString(did int,sessionsCount int) string{
+func (p *IRMAProvider) genSignCallString(did int,sessionsCount int) string{
   var callString = p.genCallString(did, sessionsCount)
   return fmt.Sprintf(callString+":%d", p.signCall(callString))
 }
 
-func (p IRMAProvider) genCallString(did int,sessionsCount int) string{
+func (p *IRMAProvider) genCallString(did int,sessionsCount int) string{
   var callString = fmt.Sprintf(p.sessionCallPrefix,did,sessionsCount)
   return callString
   // callString = fmt.Sprintf(callString+":%d", signCall(callString))
   // return callString
 }
 
-func (p IRMAProvider) signCall(callString string) uint32 {
+func (p *IRMAProvider) signCall(callString string) uint32 {
     return p.hash(p.verifierSsiKey+":"+callString)
 }
 
-func (p IRMAProvider) genAnswerString(expectedCall string, answerSig uint32) string {
+func (p *IRMAProvider) genAnswerString(expectedCall string, answerSig uint32) string {
   return fmt.Sprintf(expectedCall+":%d", answerSig)
 }
 
-func (p IRMAProvider) signAnswer(expectedCall string, sig uint32) uint32 {
+func (p *IRMAProvider) signAnswer(expectedCall string, sig uint32) uint32 {
     return p.hash(fmt.Sprintf(p.verifierSsiKey+":"+expectedCall+":%d",sig))
 }
 
-func (p IRMAProvider) expectedAnswerSig(callString string) uint32{
+func (p *IRMAProvider) expectedAnswerSig(callString string) uint32{
     return p.hash(p.ssiKey+":"+callString)
 }
 
-func (p IRMAProvider) genConfirmString(answerString string, confirmSig uint32) string{
+func (p *IRMAProvider) genConfirmString(answerString string, confirmSig uint32) string{
   return fmt.Sprintf("%s:%d", answerString, confirmSig)
 }
 
-func (p IRMAProvider) signConfirm(answerString string,sig uint32,signed uint32) uint32 {
+func (p *IRMAProvider) signConfirm(answerString string,sig uint32,signed uint32) uint32 {
   return p.hash(fmt.Sprintf("%s:%s:%d:%d",p.verifierSsiKey,answerString,sig,signed))
 }
 
-func (p IRMAProvider) signHandShake(callString string, confirmString string, sig uint32) uint32 {
+func (p *IRMAProvider) signHandShake(callString string, confirmString string, sig uint32) uint32 {
   return p.hash(fmt.Sprintf(p.verifierSsiKey+":"+callString+":"+confirmString+":%d",sig))
 }
 
-func (p IRMAProvider) signConsent(confirmString string) uint32 {
+func (p *IRMAProvider) signConsent(confirmString string) uint32 {
   return p.hash(p.ssiKey+":"+confirmString)
 }
 
@@ -268,7 +269,7 @@ func (p IRMAProvider) signConsent(confirmString string) uint32 {
 
 // UTILITY FUNCTIONS
 
-func (p IRMAProvider) hash(s string) uint32 {
+func (p *IRMAProvider) hash(s string) uint32 {
     h := fnv.New32a()
     h.Write([]byte(s))
     return h.Sum32()
@@ -282,39 +283,39 @@ func (p IRMAProvider) hash(s string) uint32 {
 
 // FUTURE ATTRIBUTE RELATED FUNCTIONS
 
-func (p IRMAProvider) DIDAttrRead(key string){
+func (p *IRMAProvider) DIDAttrRead(key string){
     fmt.Println(fmt.Sprintf("DID Identity Attribute %s Read value %s",key,""))
 }
 
-func (p IRMAProvider) DIDAttrAdd(key string, value string){
+func (p *IRMAProvider) DIDAttrAdd(key string, value string){
     fmt.Println(fmt.Sprintf("DID Identity Attribute %s Added value %s",key,value))
 }
 
-func (p IRMAProvider) DIDAttrReplace(key string, value string){
+func (p *IRMAProvider) DIDAttrReplace(key string, value string){
     fmt.Println(fmt.Sprintf("DID Identity Attribute %s Replaced with %s",key,value))
 }
 
-func (p IRMAProvider) DIDAttrDel(key string){
+func (p *IRMAProvider) DIDAttrDel(key string){
     fmt.Println(fmt.Sprintf("DID Identity Attribute %s Removed",key))
 }
 
-func (p IRMAProvider) DIDSubscribe(){
+func (p *IRMAProvider) DIDSubscribe(){
     fmt.Println("DID Identity Requested Auth To Network Service")
 }
 
-func (p IRMAProvider) DIDVerifierApproveAttrs(){
+func (p *IRMAProvider) DIDVerifierApproveAttrs(){
     fmt.Println("DID Identity Approved Auth For Attributes From Service")
 }
 
-func (p IRMAProvider) DIDVerifierDenyAttrs(){
+func (p *IRMAProvider) DIDVerifierDenyAttrs(){
     fmt.Println("DID Identity Denied Auth For Attributes From Service")
 }
 
-func (p IRMAProvider) DIDVerifierRevokeAuth(){
+func (p *IRMAProvider) DIDVerifierRevokeAuth(){
     fmt.Println("DID Identity Revoked Auth And All Attributes From Service")
 }
 
-func (p IRMAProvider) DIDVerifierRevokeAttrs(){
+func (p *IRMAProvider) DIDVerifierRevokeAttrs(){
     fmt.Println("DID Identity Revoked Auth For Attributes From Service")
 }
 

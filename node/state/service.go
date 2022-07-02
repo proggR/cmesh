@@ -2,8 +2,44 @@ package state
 import "fmt"
 //import "cmesh/provider"
 
+
+
+
 func Provider() {
     fmt.Println("Distributed State Provider Loaded")
+}
+
+type StateService struct{
+
+}
+
+type StateProviderPathSchema struct {
+  blocks string
+  events string
+  iam string
+  scripts string
+  state string
+}
+
+type StateProviderBlocksState struct {
+
+}
+
+type StateProviderEventsState struct {
+
+}
+
+type StateProviderIAMState struct {
+  DIDAddress string
+}
+
+type StateProviderAddressScripts struct {
+  Address string
+
+}
+
+type StateProviderAddressState struct {
+  Address string
 }
 
 type Transaction struct {

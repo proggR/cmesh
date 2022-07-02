@@ -28,15 +28,17 @@ NATS underwrites the entire machine's comms, from reads, to writes, to zk auth l
 
 IRMA is a beautiful spec, and in this case not being dependent or built for blockchain makes it the perfect choice for... whatever this is :\ lol. All sessions are first authenticated through IRMA, and JWTs are passed as needed via relevant NATS subjects (need to research this a ton more to be sure I fully grok both systems... this portion is the most critical component. feel like gRPC will be necessary, with NATS subjects being used for zk logs, but need to research this architecture first/thoroughly).
 
-This is the only part of the toy that "functions". In `node/main.go` there's an `iam_test` function that walks through the IRMA handshake process, and then spams it to confirm sessionless requests are rejected. Very much a toy given the private keys are shared between "client" and "server" (main and iam) and its using a hash function that's more convenient than secure. Also doesn't currently contain any of the attribute level functionality of IRMA systems.
+This is the most functional part of the "toy" atm. In `node/main.go` there's an `iam_test` function that walks through the IRMA handshake process, and then terminates the session. Very much a toy given the private keys are shared between "client" and "server" (main and iam) and its using a hash function that's more convenient than secure. Also doesn't currently contain any of the attribute level functionality of IRMA systems. Currently leveraging functions in `iam/service.go`, but a working copy has been added as the provider `toy` and the `mock` provider port to return `service.go` to acting as a service layer is in process at `iam/providers/mock`.
 
-Docs for existing toy version can be found in [node/iam/README](node/iam/README.md)
+Docs for existing toy version can be found in [node/iam/README](node/iam/README.md). Unit test coverage for public handshake steps for both valid and invalid credentials.
 
 ### Distributed Storage: HyperCore/Hyperbee/Hyperdrive
 
 ![Hypercore](assets/images/hypercore.png)
 
 Requiring storage, but not wanting to bloat the node's logic with rolling some kind of custom storage mechanism, the HyperCore stack stands out as an ideal option for carving up necessary event sourced data and persisting it in a way that should respect privacy while improving in performance with scale instead of degrading (I believe).
+
+A state service layer has been started at `state/service.go` and a Mock service provider has been started at `state/providers/mock`. It exposes `Read` and `Write` functions that first confirm with the `iam` service layer that a) a valid session exists (all requests to all services must have a valid JWT, or its required they be forced to the Auth() process to establish a session with the network), and b) the user has the required permissions for that service/resource.
 
 ### Smart Contract Runtime: WASMI
 
