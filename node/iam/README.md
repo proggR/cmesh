@@ -96,6 +96,8 @@ Documentation to follow once actual cryptography in place to enable IRMA's attri
 
 ### Public Function Coverage
 
+Note: these tests now fail since porting functions from service.go (originally iam.go) to providers/mock/provider.go and making them methods of the provider instance. Will migrate them later and setup pipelines once services are properly integrated.
+
 #### TestDIDSessionUnauthed
 
 Test to ensure that an unauthed request does not return an expected call string.
