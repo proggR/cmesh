@@ -28,8 +28,9 @@ func (s *StateProvider) Construct(iamService iam.IAM) StateProvider {
   if !s.Initialized {
       s.IAM = iamService
       s.Initialized = true
-      b := state.Block{Hash:0,ExtraData: "Genesis Block"}
-      s.Blocks = append(s.Blocks, b)
+      // b := state.Block{Hash:0,ExtraData: "Genesis Block"}
+      // s.Blocks = append(s.Blocks, b)
+      s.WriteBlock("Genesis Block")
       fmt.Println("GENESIS BLOCK GENERATED")
   }
   return *s
