@@ -64,7 +64,7 @@ func (p *IRMAProvider) Construct() IRMAProvider {
 func (p *IRMAProvider) DIDGen() string {
   fmt.Println("Generating DID Identity")
   var idx int = len(p.dids);
-  var address string = fmt.Sprintf(p.didPrefix,)
+  var address string = fmt.Sprintf(p.didPrefix,0,0)
   p.dids = append(p.dids,address)
   fmt.Println("DID Identity Generated")
   return p.dIDSessionCall(idx)
@@ -183,7 +183,7 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
 
   var handshakeSig = p.signHandShake(callString, confirmString, sig)
   var session = fmt.Sprintf("%s:%s:%d", callString,confirmString,handshakeSig)
-  fmt.Println(fmt.Sprintf("Generating DID Identity Session Confirmation #%d",p.sessionsCount+1))
+  fmt.Println(fmt.Sprintf("Generating DID Identity Session Confirmation #%d",p.sessionsCount))
 
   p.IamSession = session
 

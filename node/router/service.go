@@ -20,7 +20,7 @@ package router
 * Registrar: action:entityHash:argString:authority:authoritySig | namedService
 * Consensus: service:action #(? haven't researched far enough on raft for IF)
 
-* ### FGMN Examples
+* ### FQMN Examples
 * Blockahain Greeter Function With Args: 0Sx:0x03389f0e08b9f:hello_world (without args, should only read from state if function marked as pure, with some kind of cache?)
 * Registrar registration mapping helloWorld.mcom to contract: 0Rx:register:hash:"helloworld.mcom,0Sx:0x03389f0e08b9f",0x079f9849dac562,874958794857983475893475)
 * Registrar registration mapping helloWorldExample.mcom to contract function: 0Rx:register:hash:"helloWorldExample.mcom,0Sx:0x03389f0e08b9f:hello_world",0x079f9849dac562,874958794857983475893475)
@@ -31,3 +31,15 @@ package router
 * Assembly Exec: 0Ax:~4.1.3:0x03389f0e08b9f:hello_world:["Dexter"] (args passed through a "box" (to define) to the script, which returns into the "box" to the state service
 * (^ Note: Assembly should only ever be called via state service, and as such can't be registered with a name, and Assembly should only exist to process state changes requiring processing (define consensused cache strat))
 */
+
+type Router struct {
+
+}
+
+func (r *Router) Route(fqdn string) {
+
+}
+
+func (r *Router) ParseRoute(fqdn string) {
+
+}

@@ -85,7 +85,7 @@ func (i *IAM) IAMService(p IRMAProviderIF) IAM {
 func (i *IAM) ValidatePermissions(jwt JWT, component string, serviceProvider string, service string, action string) bool{
   // || jwt.Public != provider.DIDSession()
   // iamSession := "nope"
-  // iamSession := i.Provider.DIDSession()
+  // iamSession := (i.Provider).DIDSession()
   // @TODO: Get this properly working with IAM response... segfault, late night + early morning = this bug wins... for tonight :\
   iamSession := "0xDID:0:0:3442982940:0xDID:0:0:3442982940:2217691735:17689483:4255629929"
   // iamSession := provider.IamSession

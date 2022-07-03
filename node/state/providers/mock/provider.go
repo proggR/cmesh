@@ -24,9 +24,10 @@ type StateProvider struct {
 }
 
 
-func (s *StateProvider) Construct(iamService iam.IAM) StateProvider {
+// func (s *StateProvider) Construct(iamService iam.IAM) StateProvider {
+func (s *StateProvider) Construct() StateProvider {
   if !s.Initialized {
-      s.IAM = iamService
+      // s.IAM = iamService
       s.Initialized = true
       // b := state.Block{Hash:0,ExtraData: "Genesis Block"}
       // s.Blocks = append(s.Blocks, b)

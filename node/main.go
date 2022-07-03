@@ -2,8 +2,9 @@ package main
 import (
   "fmt"
   "hash/fnv"
-  iamProvider "node/iam/providers/mock"
+  routerService "node/router"
   iamService "node/iam"
+  iamProvider "node/iam/providers/mock"
   stateProvider "node/state/providers/mock"
   // iam "node/iam/providers/mock"
   // "node/events/providers/mock"
@@ -15,16 +16,20 @@ import (
 var ssiKey string = "i am the walrus"
 var invalidKey string = "i am one of the walruses"
 
+var RouterService routerService.Router
 var IAMService iamService.IAM
 var IAMProvider iamProvider.IRMAProvider
-
 var StateProvider stateProvider.StateProvider
+
+var PortIAM chan iamService.IAM
+var PortRouter chan routerService.Router
+var PortState chan stateProvider.StateProvider
 
 func main() {
     fmt.Println("Node Started")
-    iamServ := iam_bootstrap()
-    stateServ := state_bootstrap(iamServ)
-    if(stateServ.Initialized){
+    iam_bootstrap()
+    state_bootstrap()
+    if(StateProvider.Initialized){
       fmt.Println("State Service Initialized. Beginning Node Tests.")
       iam_test()
     // eventServ := events_bootstrap(iamServ, stateServ)
@@ -40,20 +45,23 @@ func main() {
     }
 }
 
-func iam_bootstrap() iamService.IAM {
+func router_bootstrap(){
+
+}
+
+func iam_bootstrap() {
   iamp := &iamProvider.IRMAProvider{}
 
   IAMProvider = iamp.Construct()
   IAMService = iamService.IAM{}
-  IAMService.IAMService(iamp)
+  IAMService = IAMService.IAMService(iamp)
   IAMProvider.IAMService = IAMService
-  return IAMService
 }
 
-func state_bootstrap(iamServ iamService.IAM) stateProvider.StateProvider{
+func state_bootstrap(){
   stp := &stateProvider.StateProvider{}
-  StateProvider = stp.Construct(iamServ)
-  return StateProvider
+  // iamp := &iamServ
+  StateProvider = stp.Construct()
 }
 
 func iam_test(){
