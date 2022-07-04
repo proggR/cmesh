@@ -13,6 +13,8 @@ func stahp(){
   state.Provider()
 }
 
+var IAM iam.IAM
+
 
 var Provider StateProvider// = new(StateProvider).Construct()
 
@@ -20,14 +22,13 @@ var Provider StateProvider// = new(StateProvider).Construct()
 type StateProvider struct {
   Initialized bool
   Blocks []state.Block
-  IAM iam.IAM
+  IAM chan iam.IAM
 }
 
-
 // func (s *StateProvider) Construct(iamService iam.IAM) StateProvider {
-func (s *StateProvider) Construct() StateProvider {
+func (s *StateProvider) Construct(iamService chan iam.IAM) StateProvider {
   if !s.Initialized {
-      // s.IAM = iamService
+      s.IAM = iamService
       s.Initialized = true
       // b := state.Block{Hash:0,ExtraData: "Genesis Block"}
       // s.Blocks = append(s.Blocks, b)
@@ -95,7 +96,11 @@ func (s *StateProvider) generateBlock(prevIdx uint32, msg string) state.Block {
 
 func (s *StateProvider) Read(iamSession iam.JWT, address string, function string, args []byte, callbackFunction string){
     fmt.Println(fmt.Sprintf("Session public:%s",iamSession.Public))
-    if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
+    go func(){
+      IAM = <- s.IAM
+    }()
+
+    if !IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
       msg := fmt.Sprintf("Read permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return
@@ -106,7 +111,9 @@ func (s *StateProvider) Read(iamSession iam.JWT, address string, function string
 }
 
 func (s *StateProvider) Write(iamSession iam.JWT, address string, function string, args []byte, callbackFunction string){
-    if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
+
+    iamService := <- s.IAM
+    if !iamService.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
       msg := fmt.Sprintf("Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return

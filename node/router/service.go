@@ -1,5 +1,8 @@
 package router
-
+import(
+  "fmt"
+  "node/iam"
+)
 
 /**
 * Proposed Op Code Prefixes
@@ -17,13 +20,14 @@ package router
 * Assembly: version:contract:action(:args)?
 * Events: channel:action(:args)?
 * Router: FQMN
-* Registrar: action:entityHash:argString:authority:authoritySig | namedService
+* Registrar: action:entityHash:FQMN:authority:authoritySig | namedService
 * Consensus: service:action #(? haven't researched far enough on raft for IF)
 
 * ### FQMN Examples
 * Blockahain Greeter Function With Args: 0Sx:0x03389f0e08b9f:hello_world (without args, should only read from state if function marked as pure, with some kind of cache?)
-* Registrar registration mapping helloWorld.mcom to contract: 0Rx:register:hash:"helloworld.mcom,0Sx:0x03389f0e08b9f",0x079f9849dac562,874958794857983475893475)
-* Registrar registration mapping helloWorldExample.mcom to contract function: 0Rx:register:hash:"helloWorldExample.mcom,0Sx:0x03389f0e08b9f:hello_world",0x079f9849dac562,874958794857983475893475)
+* Registrar registration mapping helloWorld.mcom to contract: 0Rx:register:hash:0Sx:0x03389f0e08b9f,0x079f9849dac562,874958794857983475893475)
+* Registrar registration mapping helloWorldExample.mcom to contract function: 0Rx:register:hash:0Sx:0x03389f0e08b9f:hello_world,0x079f9849dac562,874958794857983475893475)
+* And again leveraging the existing named service: 0Rx:register:hash:0Rx:helloWorld.mcom:hello_world,0x079f9849dac562,874958794857983475893475)
 * Event Stream For Registar Named Service Registration: 0Ex:0Rx:Registered
 * Event Stream For Transferred Event From Named Contract: 0Ex:0Rx:helloworld.mcom:Transferred
 * Blockahain Greeter Function With Args: 0Sx:0x03389f0e08b9f:hello_world:["Dexter"] (with args, assumes computation and invokes smart contract through Assembler call)
@@ -33,13 +37,41 @@ package router
 */
 
 type Router struct {
-
+  IAM iam.IAM
+  RouterDID string
+  OperatorDID string
+  RegistrarTx uint32
+  RegistrarSig string
+  ZKHash uint32
 }
 
-func (r *Router) Route(fqdn string) {
-
+// func (r *Router) Route(fqdn string) {
+func (r *Router) Route(service string, action string) string {
+  msg := fmt.Sprintf("Routing to %s @ %s",action,service)
+  fmt.Println(msg)
+  return msg
 }
 
 func (r *Router) ParseRoute(fqdn string) {
 
+}
+
+func (r *Router) TestPing() string {
+  msg := r.IAM.Test
+  fmt.Println(msg)
+  return msg
+}
+
+func (r *Router) TestSession() string {
+  msg := r.IAM.Provider.DIDSession()
+  fmt.Println(fmt.Sprintf("Router Session Test:\n Response: %s",msg))
+  return msg
+}
+
+func (r *Router) TestHandshake() string {
+    return r.IAM.TestHandshake()//r.IAM.TestProvider()
+}
+
+func (r *Router) TestProvider() string {
+    return ""//r.IAM.TestProvider()
 }

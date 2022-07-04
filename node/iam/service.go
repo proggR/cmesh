@@ -9,7 +9,8 @@
 package iam
 import (
   "fmt"
-  // "hash/fnv"
+  iamProvider "node/iam/providers/mock"
+  "hash/fnv"
 
   //"node/iam/providers/mock"
   //"vendor/cmesh/provider"
@@ -18,7 +19,12 @@ import (
 // var Provider IRMAProviderIF
 // var Service IAM
 
+var ssiKey string = "i am the walrus"
+var invalidKey string = "i am one of the walruses"
+
+
 type IAM struct {
+  Initialized bool
   Provider IRMAProviderIF
   Test string
   Jwt JWT
@@ -73,14 +79,25 @@ type Permissions struct {
 }
 
 
-func (i *IAM) IAMService(p IRMAProviderIF) IAM {
+func (i *IAM) IAMService() IAM {
+  iamp := &iamProvider.IRMAProvider{}
+  i.setProvider(iamp)
+  // IAMProvider = iamp.Construct()
   i.Test = "blah"
-  i.Provider = p // = IAM{Provider:p}
+  // i.Provider = iamp.Construct() // = IAM{Provider:p}
   // Service = i
   // Provider = p
   fmt.Println("SSI/DID IAM Service & Provider Loaded")
   return *i
 }
+
+func (i *IAM) setProvider(iamp IRMAProviderIF){
+  i.Provider = iamp
+}
+
+// func (i *IAM) TestProvider() string {
+//     return i.Provider.DidKey
+// }
 
 func (i *IAM) ValidatePermissions(jwt JWT, component string, serviceProvider string, service string, action string) bool{
   // || jwt.Public != provider.DIDSession()
@@ -101,6 +118,71 @@ func (i *IAM) ValidatePermissions(jwt JWT, component string, serviceProvider str
   // }
   return true
 }
+
+
+func (i *IAM) TestHandshake() string{
+
+  fmt.Println("Client: Beginning IRMA Session Handshake\n")
+
+  fmt.Println("Client: Test One: Valid Complete Walkthrough")
+
+  var callString string = i.Provider.DIDSession()
+  fmt.Println(fmt.Sprintf("Session Request Call ID: %s\n",callString))
+  if callString == "" {
+    return callString
+  }
+
+  fmt.Println("Client: Answering Call")
+  fmt.Println("Client: Fake Answer")
+  var fakeConfirmationString string = i.Provider.DIDSessionAnswer(0,callString,9001)
+  fmt.Println(fmt.Sprintf("Session Fake Answer Confirmation ID: %s\n",fakeConfirmationString))
+
+  fmt.Println("Client: Valid Answer")
+  var confirmationString string = i.Provider.DIDSessionAnswer(0,callString,expectedAnswerSig(callString))
+  fmt.Println(fmt.Sprintf("Session Answer Confirmation ID: %s\n",confirmationString))
+  if confirmationString == "" {
+    return confirmationString
+  }
+
+  fmt.Println("Client: Call Answered")
+  fmt.Println("Client: Consenting to Answer Confirmation")
+
+  fmt.Println("Client: Fake Consent")
+  var fakeConsentString string = i.Provider.DIDSessionConsent(0,callString,confirmationString, 9001)
+  fmt.Println(fmt.Sprintf("Session Fake Consent Confirmation ID: %s\n",fakeConsentString))
+
+  fmt.Println("Client: Valid Consent")
+  var consentString string = i.Provider.DIDSessionConsent(0,callString,confirmationString, signConsent(confirmationString))
+  fmt.Println(fmt.Sprintf("Client: Consented Session ID: %s\n",consentString))
+
+  if consentString == "" {
+    return consentString
+  }
+
+  fmt.Println("Client: Call Consented")
+
+  // state_test(consentString)
+
+  i.Provider.DIDSessionHangup()
+  return consentString
+}
+
+
+func expectedAnswerSig(callString string) uint32{
+    return hash(ssiKey+":"+callString)
+}
+
+func signConsent(confirmString string) uint32 {
+  return hash(ssiKey+":"+confirmString)
+}
+
+
+func hash(s string) uint32 {
+    h := fnv.New32a()
+    h.Write([]byte(s))
+    return h.Sum32()
+}
+
 
 // var provider IRMAProviderIF
 // var service IAM
