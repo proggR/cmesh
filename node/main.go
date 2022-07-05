@@ -65,12 +65,12 @@ func main() {
 
     fmt.Println(" Starting Router IAM Handshake Test")
     msg = RouterService.TestHandshake()
-    fmt.Println(fmt.Sprintf("\n Router IAM Handshake Test results:\n   Response: %s\n", msg))
+    fmt.Println(fmt.Sprintf("\n   Router IAM Handshake Test results:\n    Response: %s\n", msg))
     if(msg == ""){
-      fmt.Println("Router IAM Handshake Test Failed. Check Router config and try again.")
+      fmt.Println(" Router IAM Handshake Test Failed. Check Router config and try again.")
       return
     } else {
-      fmt.Sprintln(" Router IAM Handshake Test Completed\n Response:%s\n", msg)
+      fmt.Println(fmt.Sprintf(" Router IAM Handshake Test Completed\n Response:%s\n", msg))
     }
 
 

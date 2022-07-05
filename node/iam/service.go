@@ -130,7 +130,7 @@ func (i *IAM) TestHandshake() string{
   // fmt.Println("    Client: Test One: Valid Complete Walkthrough")
 
   var callString string = i.Provider.DIDSession()
-  fmt.Println(fmt.Sprintf("Session Request Call ID: %s\n",callString))
+  fmt.Println(fmt.Sprintf("   Session Request Call ID: %s\n",callString))
   if callString == "" {
     return callString
   }
