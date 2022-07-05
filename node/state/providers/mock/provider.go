@@ -52,7 +52,7 @@ func (s *StateProvider) WriteBlock(msg string){
 
     hash = s.Blocks[prevIdx].Hash
     // block = s.Blocks[prevIdx]
-    fmt.Println(fmt.Sprintf("      Last Block Index: %d ;\n      MSG: %s;\n      Last Block Hash: %d\n",prevIdx,s.Blocks[prevIdx].ExtraData,hash))
+    fmt.Println(fmt.Sprintf("      Last Block Index: %d ;\n      Last Block Hash: %d ;\n      MSG:\n       %s ;\n",prevIdx,hash,s.Blocks[prevIdx].ExtraData))
   }
 
   fmt.Println("   Generating New Block On 'Chain'")
@@ -72,7 +72,7 @@ func (s *StateProvider) WriteBlock(msg string){
   // s.Blocks[prevIdx] = b
   fmt.Println(fmt.Sprintf("   Block Count After Append: %d",len(s.Blocks)))
 
-  fmt.Println(fmt.Sprintf("   Wrote New Block: Prev Hash of %d, New Hash %d\n",prevIdx,len(s.Blocks)-1))
+  fmt.Println(fmt.Sprintf("   Wrote New Block: Prev Hash of %d, New Hash %d\n",hash-1,hash))
 }
 
 // @TODO: switch WriteBlock to work with this to clean things up
@@ -90,8 +90,8 @@ func (s *StateProvider) Read(iamSession iam.JWT, address string, function string
       fmt.Println(msg)
       return
     }
-    msg := fmt.Sprintf("   State of %s:%s read by %s passing args: %s",address,function,iamSession.Public,string(args))
-    fmt.Println(msg)
+    msg := fmt.Sprintf("State of %s:%s read by %s passing args: %s",address,function,iamSession.Public,string(args))
+    fmt.Println(fmt.Sprintf("   %s",msg))
     s.WriteBlock(msg)
 }
 
@@ -101,8 +101,8 @@ func (s *StateProvider) Write(iamSession iam.JWT, address string, function strin
       fmt.Println(msg)
       return
     }
-    msg := fmt.Sprintf("   State of %s:%s wrote to by %s passing args: %s",address,function,iamSession.Public,string(args))
-    fmt.Println(msg)
+    msg := fmt.Sprintf("State of %s:%s wrote to by %s passing args: %s",address,function,iamSession.Public,string(args))
+    fmt.Println(fmt.Sprintf("   %s",msg))
     s.WriteBlock(msg)
 }
 
