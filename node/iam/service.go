@@ -55,6 +55,7 @@ type IRMAProviderIF interface {
     // dIDSessionConfirm() string
     DIDSessionConsent(int, string, string, uint32) string
     DIDSessionHangup()
+    TestProvider() string
 }
 
 type Condition struct {
@@ -81,6 +82,8 @@ type Permissions struct {
 
 func (i *IAM) IAMService() IAM {
   iamp := &iamProvider.IRMAProvider{}
+  iamp.Construct()
+  // i.Provider = iamp.Construct()
   i.setProvider(iamp)
   // IAMProvider = iamp.Construct()
   i.Test = "blah"
@@ -95,9 +98,9 @@ func (i *IAM) setProvider(iamp IRMAProviderIF){
   i.Provider = iamp
 }
 
-// func (i *IAM) TestProvider() string {
-//     return i.Provider.DidKey
-// }
+func (i *IAM) TestProvider() string {
+    return i.Provider.TestProvider()
+}
 
 func (i *IAM) ValidatePermissions(jwt JWT, component string, serviceProvider string, service string, action string) bool{
   // || jwt.Public != provider.DIDSession()
@@ -122,9 +125,9 @@ func (i *IAM) ValidatePermissions(jwt JWT, component string, serviceProvider str
 
 func (i *IAM) TestHandshake() string{
 
-  fmt.Println("Client: Beginning IRMA Session Handshake\n")
+  fmt.Println("   Client: Beginning IRMA Session Handshake\n")
 
-  fmt.Println("Client: Test One: Valid Complete Walkthrough")
+  // fmt.Println("    Client: Test One: Valid Complete Walkthrough")
 
   var callString string = i.Provider.DIDSession()
   fmt.Println(fmt.Sprintf("Session Request Call ID: %s\n",callString))
@@ -132,38 +135,39 @@ func (i *IAM) TestHandshake() string{
     return callString
   }
 
-  fmt.Println("Client: Answering Call")
-  fmt.Println("Client: Fake Answer")
+  fmt.Println("   Client: Answering Call")
+  fmt.Println("   Client: Fake Answer")
   var fakeConfirmationString string = i.Provider.DIDSessionAnswer(0,callString,9001)
-  fmt.Println(fmt.Sprintf("Session Fake Answer Confirmation ID: %s\n",fakeConfirmationString))
+  fmt.Println(fmt.Sprintf("   Session Fake Answer Confirmation ID: %s\n",fakeConfirmationString))
 
-  fmt.Println("Client: Valid Answer")
+  fmt.Println("   Client: Valid Answer")
   var confirmationString string = i.Provider.DIDSessionAnswer(0,callString,expectedAnswerSig(callString))
-  fmt.Println(fmt.Sprintf("Session Answer Confirmation ID: %s\n",confirmationString))
+  fmt.Println(fmt.Sprintf("\n   Session Answer Confirmation ID:%s\n",confirmationString))
   if confirmationString == "" {
     return confirmationString
   }
 
-  fmt.Println("Client: Call Answered")
-  fmt.Println("Client: Consenting to Answer Confirmation")
+  fmt.Println("   Client: Call Answered\n")
+  fmt.Println("   Client: Consenting to Answer Confirmation")
 
-  fmt.Println("Client: Fake Consent")
+  fmt.Println("   Client: Fake Consent")
   var fakeConsentString string = i.Provider.DIDSessionConsent(0,callString,confirmationString, 9001)
-  fmt.Println(fmt.Sprintf("Session Fake Consent Confirmation ID: %s\n",fakeConsentString))
+  fmt.Println(fmt.Sprintf("   Session Fake Consent Confirmation ID: %s\n",fakeConsentString))
 
-  fmt.Println("Client: Valid Consent")
+  fmt.Println("   Client: Valid Consent")
   var consentString string = i.Provider.DIDSessionConsent(0,callString,confirmationString, signConsent(confirmationString))
-  fmt.Println(fmt.Sprintf("Client: Consented Session ID: %s\n",consentString))
+  fmt.Println(fmt.Sprintf("\n   Client: Consented Session ID: %s\n",consentString))
 
   if consentString == "" {
     return consentString
   }
 
-  fmt.Println("Client: Call Consented")
+  fmt.Println("   Client: Call Consented\n")
 
   // state_test(consentString)
 
   i.Provider.DIDSessionHangup()
+  // fmt.Println(fmt.Sprintf("WORDS: %s",consentString))
   return consentString
 }
 

@@ -34,7 +34,8 @@ func main() {
 
     fmt.Println("Starting Router Service")
     RouterService = routerService.Router{IAM:IAMService}
-    fmt.Println("Router Service Initialized\n Starting Pingback Test\n")
+
+    fmt.Println("\nRouter Service Initialized\n Starting Pingback Test")
     msg := RouterService.TestPing()
     fmt.Println(fmt.Sprintf("  Pingback test results:\n   Expecting: %s\n   Have: %s\n",expectedPingbackString, msg))
 
@@ -43,32 +44,33 @@ func main() {
       return
     }
 
-    // fmt.Println(" Starting Router IAM Provider Test")
-    // msg = RouterService.TestProvider()
-    // if(msg == ""){
-    //   fmt.Println("Router IAM Provider Test Failed. Check Router config and try again.")
-    // }else{
-    //   fmt.Println(" Router IAM Provider Loaded")
-    // }
+    fmt.Println(" Starting Router IAM Provider Test")
+    msg = RouterService.TestIAMProvider()
+    if(msg == ""){
+      fmt.Println("Router IAM Provider Test Failed. Check Router config and try again.")
+      return
+    }else{
+      fmt.Println(fmt.Sprintf("   Router IAM Provider Loaded. DidKey: %s\n",msg))
+    }
 
-    fmt.Println("Starting Router IAM Session Test")
+    fmt.Println(" Starting Router IAM Session Test")
     msg = RouterService.TestSession()
-    fmt.Println(fmt.Sprintf("  Router IAM Session Test results:\n   Response: %s\n", msg))
+    fmt.Println(fmt.Sprintf("   Router IAM Session Test results:\n    Response: %s\n", msg))
     if(msg == ""){
       fmt.Println("Router IAM Session Test Failed. Check Router config and try again.")
       return
     } else {
-      fmt.Sprintln("Router IAM Session Test Completed\n Response: %s\n", msg)
+      fmt.Println(fmt.Sprintf("   Router IAM Session Test Completed\n    Response: %s\n", msg))
     }
 
-    fmt.Println("Starting Router IAM Handshake Test")
+    fmt.Println(" Starting Router IAM Handshake Test")
     msg = RouterService.TestHandshake()
-    fmt.Println(fmt.Sprintf("  Router IAM Handshake Test results:\n   Response: %s\n", msg))
+    fmt.Println(fmt.Sprintf("\n Router IAM Handshake Test results:\n   Response: %s\n", msg))
     if(msg == ""){
       fmt.Println("Router IAM Handshake Test Failed. Check Router config and try again.")
       return
     } else {
-      fmt.Sprintln("Router IAM Handshake Test Completed\n Response: %s\n", msg)
+      fmt.Sprintln(" Router IAM Handshake Test Completed\n Response:%s\n", msg)
     }
 
 

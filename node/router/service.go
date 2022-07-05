@@ -64,7 +64,7 @@ func (r *Router) TestPing() string {
 
 func (r *Router) TestSession() string {
   msg := r.IAM.Provider.DIDSession()
-  fmt.Println(fmt.Sprintf("Router Session Test:\n Response: %s",msg))
+  fmt.Println(fmt.Sprintf("   Router Session Test:\n    Response: %s",msg))
   return msg
 }
 
@@ -72,6 +72,6 @@ func (r *Router) TestHandshake() string {
     return r.IAM.TestHandshake()//r.IAM.TestProvider()
 }
 
-func (r *Router) TestProvider() string {
-    return ""//r.IAM.TestProvider()
+func (r *Router) TestIAMProvider() string {
+    return r.IAM.TestProvider()
 }

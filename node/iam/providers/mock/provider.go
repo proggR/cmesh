@@ -62,6 +62,10 @@ func (p *IRMAProvider) Construct() IRMAProvider {
 // START OF IF IMPLEMENTATION FUNCTIONS
 // (including the private ones I had to comment out of the IF... figure out how that works :\ )
 
+func (p *IRMAProvider) TestProvider() string {
+  return p.didAttribute
+}
+
 func (p *IRMAProvider) DIDGen() string {
   fmt.Println("   Generating DID Identity")
   var idx int = len(p.dids);
@@ -110,6 +114,7 @@ func (p *IRMAProvider) dIDSessionCall(did int) string {
   fmt.Println(fmt.Sprintf("   Generating DID Identity Session Request #%d",p.sessionsCount+1))
   var callString string = p.genSignCallString(did, p.sessionsCount)
   fmt.Println("   DID Identity Session Request Generated")
+  fmt.Println(fmt.Sprintf("     Callstring: %s",callString))
   return callString
 }
 
@@ -118,7 +123,7 @@ func (p *IRMAProvider) DIDSessionAnswer(did int, callString string, sig uint32) 
     var expectedSig uint32 = p.expectedAnswerSig(expectedCall)
 
     if expectedSig != sig {
-      fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Answer Credentials For DID %d Provider DID Attribute Checked(%s) SSI Checked (%s):\n Expected %d\n Have %d", did, p.didAttribute,p.ssiAddress,expectedSig,sig))
+      fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Answer Credentials For DID %d Provider DID Attribute Checked(%s) SSI Checked (%s):\n    Expected %d\n    Have %d\n", did, p.didAttribute,p.ssiAddress,expectedSig,sig))
       return ""
     }
     if expectedCall != callString {
@@ -144,7 +149,7 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
   var expectedCallString string = p.genSignCallString(did,p.sessionsCount)
 
   if expectedCallString != callString {
-    fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Call String:\n Expected %s\n Have %s",expectedCallString,callString))
+    fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Call String:\n    Expected %s\n    Have %s\n",expectedCallString,callString))
     return ""
   }
 
@@ -164,7 +169,7 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
   //var expectedConfirmString string = fmt.Sprintf(expectedAnswerSig+":%d", expectedConfirmSig)
 
   if expectedConfirmString != confirmString {
-    fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Confirmation String:\n Expected: %s\n Have: %s", expectedConfirmString, confirmString))
+    fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Confirmation String:\n Expected:    %s\n    Have: %s\n", expectedConfirmString, confirmString))
     return ""
   }
 
@@ -183,7 +188,7 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
 
 
   var handshakeSig = p.signHandShake(callString, confirmString, sig)
-  var session = fmt.Sprintf("   %s:%s:%d", callString,confirmString,handshakeSig)
+  var session = fmt.Sprintf("%s:%s:%d", callString,confirmString,handshakeSig)
   fmt.Println(fmt.Sprintf("   Generating DID Identity Session Confirmation #%d",p.sessionsCount))
 
   p.IamSession = session
@@ -196,9 +201,9 @@ func (p *IRMAProvider) DIDSessionHangup() {
   if p.sessionAlive {
     p.sessionAlive = false
     p.IamSession = ""
-    fmt.Println(fmt.Sprintf("   DID Identity Network Session #%d Terminated",p.sessionsCount))
+    fmt.Println(fmt.Sprintf("   DID Identity Network Session #%d Terminated\n",p.sessionsCount))
   } else {
-    fmt.Println("   No DID Identity Network Session To Terminated")
+    fmt.Println("   No DID Identity Network Session To Terminated\n")
   }
 }
 
@@ -251,11 +256,11 @@ func (p *IRMAProvider) expectedAnswerSig(callString string) uint32{
 }
 
 func (p *IRMAProvider) genConfirmString(answerString string, confirmSig uint32) string{
-  return fmt.Sprintf("   %s:%d", answerString, confirmSig)
+  return fmt.Sprintf("%s:%d", answerString, confirmSig)
 }
 
 func (p *IRMAProvider) signConfirm(answerString string,sig uint32,signed uint32) uint32 {
-  return p.hash(fmt.Sprintf("   %s:%s:%d:%d",p.verifierSsiKey,answerString,sig,signed))
+  return p.hash(fmt.Sprintf("%s:%s:%d:%d",p.verifierSsiKey,answerString,sig,signed))
 }
 
 func (p *IRMAProvider) signHandShake(callString string, confirmString string, sig uint32) uint32 {
