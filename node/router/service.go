@@ -3,6 +3,7 @@ import(
   "fmt"
   "node/iam"
   stateProvider "node/state/providers/mock"
+  registrarService "node/registrar"
   // iam "node/iam/providers/mock"
   // "node/events/providers/mock"
   // "node/state/providers/mock"
@@ -52,10 +53,12 @@ type Router struct {
 }
 
 var StateProvider stateProvider.StateProvider
+var RegistrarService registrarService.Registrar
 
 func (r *Router) InitializeServices(){
   fmt.Println("Initializing Protected Services\n")
   r.state_bootstrap()
+  r.registrar_bootstrap()
 }
 
 // func (r *Router) Route(fqdn string) {
@@ -70,11 +73,19 @@ func (r *Router) ParseRoute(fqdn string) {
 }
 
 func (r *Router) state_bootstrap(){
-  fmt.Println(" Initializing State Provider Loaded\n")
+  fmt.Println(" Initializing State Provider\n")
   StateProvider = stateProvider.StateProvider{IAM:r.IAM}
   StateProvider = StateProvider.Construct()
   fmt.Println(" State Provider Loaded\n")
   r.testState()
+}
+
+func (r *Router) registrar_bootstrap(){
+  fmt.Println(" Initializing Registrar Service\n")
+  RegistrarService = registrarService.Registrar{IAM:r.IAM}
+  RegistrarService = RegistrarService.Construct()
+  fmt.Println(" Registrar Service Loaded\n")
+  r.testRegistrar()
 }
 
 func (r *Router) TestPing() string {
@@ -117,4 +128,35 @@ func (r *Router) testState(){
 
   fmt.Println("   Client: Running State Read Check With JWT\n")
   StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,121,131,141}, "ping_world")
+}
+
+func (r *Router) testRegistrar(){
+  fmt.Println("  Running Registrar Test Sequence")
+
+  consentString := r.IAM.Provider.DIDSession()
+  jwt := iam.JWT{Public:consentString}
+
+  fmt.Println("   Client: Running Registrar Named Contract Registration With JWT\n")
+  msg := RegistrarService.Register(jwt, "helloWorld.mcom", "0xS:0x001")
+  fmt.Println(fmt.Sprintf("   Named Contract Mapping Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Named Function Registration With JWT\n")
+  msg = RegistrarService.Register(jwt, "helloWorldExample.mcom", "0xS:0x001:hello_world")
+  fmt.Println(fmt.Sprintf("   Named Function Mapping Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Taken Name Registration With JWT\n")
+  msg = RegistrarService.Register(jwt, "helloWorldExample.mcom", "0xS:0x001:goodnight_world")
+  fmt.Println(fmt.Sprintf("   Named Function Mapping Response (should be blank): %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Named Contract Resolution With JWT\n")
+  msg = RegistrarService.Resolve(jwt, "helloWorld.mcom")
+  fmt.Println(fmt.Sprintf("   Named Contract FQMN Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Named Function Resolution With JWT\n")
+  msg = RegistrarService.Resolve(jwt, "helloWorldExample.mcom")
+  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Unregistered Name Resolution With JWT\n")
+  msg = RegistrarService.Resolve(jwt, "google.com")
+  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
 }
