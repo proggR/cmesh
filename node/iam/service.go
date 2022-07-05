@@ -138,7 +138,7 @@ func (i *IAM) TestHandshake() string{
   fmt.Println("   Client: Answering Call")
   fmt.Println("   Client: Fake Answer")
   var fakeConfirmationString string = i.Provider.DIDSessionAnswer(0,callString,9001)
-  fmt.Println(fmt.Sprintf("   Session Fake Answer Confirmation ID: %s\n",fakeConfirmationString))
+  fmt.Println(fmt.Sprintf("   Session Fake Answer Confirmation ID (should be blank): %s\n",fakeConfirmationString))
 
   fmt.Println("   Client: Valid Answer")
   var confirmationString string = i.Provider.DIDSessionAnswer(0,callString,expectedAnswerSig(callString))
@@ -152,7 +152,7 @@ func (i *IAM) TestHandshake() string{
 
   fmt.Println("   Client: Fake Consent")
   var fakeConsentString string = i.Provider.DIDSessionConsent(0,callString,confirmationString, 9001)
-  fmt.Println(fmt.Sprintf("   Session Fake Consent Confirmation ID: %s\n",fakeConsentString))
+  fmt.Println(fmt.Sprintf("   Session Fake Consent Confirmation ID (should be blank): %s\n",fakeConsentString))
 
   fmt.Println("   Client: Valid Consent")
   var consentString string = i.Provider.DIDSessionConsent(0,callString,confirmationString, signConsent(confirmationString))
@@ -166,7 +166,7 @@ func (i *IAM) TestHandshake() string{
 
   // state_test(consentString)
 
-  i.Provider.DIDSessionHangup()
+  // i.Provider.DIDSessionHangup()
   // fmt.Println(fmt.Sprintf("WORDS: %s",consentString))
   return consentString
 }

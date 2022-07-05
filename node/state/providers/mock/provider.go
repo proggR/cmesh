@@ -22,18 +22,17 @@ var Provider StateProvider// = new(StateProvider).Construct()
 type StateProvider struct {
   Initialized bool
   Blocks []state.Block
-  IAM chan iam.IAM
+  IAM iam.IAM
 }
 
 // func (s *StateProvider) Construct(iamService iam.IAM) StateProvider {
-func (s *StateProvider) Construct(iamService chan iam.IAM) StateProvider {
+func (s *StateProvider) Construct() StateProvider {
   if !s.Initialized {
-      s.IAM = iamService
       s.Initialized = true
       // b := state.Block{Hash:0,ExtraData: "Genesis Block"}
       // s.Blocks = append(s.Blocks, b)
       s.WriteBlock("Genesis Block")
-      fmt.Println("GENESIS BLOCK GENERATED")
+      fmt.Println("   GENESIS BLOCK GENERATED\n")
   }
   return *s
 }
@@ -53,21 +52,21 @@ func (s *StateProvider) WriteBlock(msg string){
   var hash uint32
   // var block state.Block
   if len(s.Blocks) == 0 {
-    fmt.Println("WARNING!: NO BLOCKS")
+    fmt.Println("   WARNING!: NO BLOCKS")
     prevIdx = -1
     hash = 0
     idx = 0;
   } else {
-    fmt.Println("NOTICE!: BLOCKS")
+    fmt.Println("   NOTICE!: BLOCKS")
     idx = len(s.Blocks)
     prevIdx = idx-1
-    fmt.Println(fmt.Sprintf("NOTICE!: LAST BLOCK INDEX: %d ; MSG: %s",prevIdx,s.Blocks[prevIdx].ExtraData))
+    fmt.Println(fmt.Sprintf("   NOTICE!: LAST BLOCK INDEX: %d ; MSG: %s",prevIdx,s.Blocks[prevIdx].ExtraData))
     hash = s.Blocks[prevIdx].Hash
     // block = s.Blocks[prevIdx]
-    fmt.Println(fmt.Sprintf("NOTICE!: BLOCK: %d",hash))
+    fmt.Println(fmt.Sprintf("   NOTICE!: BLOCK: %d",hash))
   }
 
-  fmt.Println("Generating New Block On 'Chain'")
+  fmt.Println("   Generating New Block On 'Chain'")
 
   // b := state.Block{Hash:hash+1, Prev: &block,ExtraData:msg}
 
@@ -75,17 +74,17 @@ func (s *StateProvider) WriteBlock(msg string){
   hash = hash+1
   // blocks := s.Blocks
   b := state.Block{Hash:hash,ExtraData:msg}
-  fmt.Println(fmt.Sprintf("Block %d Generated",b.Hash))
+  fmt.Println(fmt.Sprintf("   Block %d Generated",b.Hash))
 
-  fmt.Println("Writing New Block To 'Chain'")
-  fmt.Println(fmt.Sprintf("Block Count Before Append: %d",len(s.Blocks)))
+  fmt.Println("   Writing New Block To 'Chain'")
+  fmt.Println(fmt.Sprintf("   Block Count Before Append: %d",len(s.Blocks)))
   // blocks = append(blocks, b)
   // s.Blocks = blocks
   s.Blocks = append(s.Blocks,b) //append(blocks, b)
   // s.Blocks[prevIdx] = b
-  fmt.Println(fmt.Sprintf("Block Count After Append: %d",len(s.Blocks)))
+  fmt.Println(fmt.Sprintf("   Block Count After Append: %d",len(s.Blocks)))
 
-  fmt.Println(fmt.Sprintf("Wrote New Block: Prev Hash of %d, New Hash %d",prevIdx,len(s.Blocks)-1))
+  fmt.Println(fmt.Sprintf("   Wrote New Block: Prev Hash of %d, New Hash %d\n",prevIdx,len(s.Blocks)-1))
 }
 
 func (s *StateProvider) generateBlock(prevIdx uint32, msg string) state.Block {
@@ -95,30 +94,30 @@ func (s *StateProvider) generateBlock(prevIdx uint32, msg string) state.Block {
 }
 
 func (s *StateProvider) Read(iamSession iam.JWT, address string, function string, args []byte, callbackFunction string){
-    fmt.Println(fmt.Sprintf("Session public:%s",iamSession.Public))
-    go func(){
-      IAM = <- s.IAM
-    }()
+    fmt.Println(fmt.Sprintf("   Session public:%s",iamSession.Public))
+    // go func(){
+    //   IAM = <- s.IAM
+    // }()
 
-    if !IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
-      msg := fmt.Sprintf("Read permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
+    if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
+      msg := fmt.Sprintf("   Read permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return
     }
-    msg := fmt.Sprintf("State of %s:%s read by %s passing args: %s",address,function,iamSession.Public,string(args))
+    msg := fmt.Sprintf("   State of %s:%s read by %s passing args: %s",address,function,iamSession.Public,string(args))
     fmt.Println(msg)
     s.WriteBlock(msg)
 }
 
 func (s *StateProvider) Write(iamSession iam.JWT, address string, function string, args []byte, callbackFunction string){
 
-    iamService := <- s.IAM
-    if !iamService.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
-      msg := fmt.Sprintf("Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
+    // iamService := <- s.IAM
+    if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
+      msg := fmt.Sprintf("   Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return
     }
-    msg := fmt.Sprintf("State of %s:%s wrote to by %s passing args: %s",address,function,iamSession.Public,string(args))
+    msg := fmt.Sprintf("   State of %s:%s wrote to by %s passing args: %s",address,function,iamSession.Public,string(args))
     fmt.Println(msg)
     s.WriteBlock(msg)
 }

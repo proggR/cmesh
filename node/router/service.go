@@ -2,6 +2,13 @@ package router
 import(
   "fmt"
   "node/iam"
+  stateProvider "node/state/providers/mock"
+
+  // iam "node/iam/providers/mock"
+  // "node/events/providers/mock"
+  // "node/state/providers/mock"
+  // "node/consensus/providers/mock"
+  // "node/assembly/providers/wasmi"
 )
 
 /**
@@ -45,6 +52,13 @@ type Router struct {
   ZKHash uint32
 }
 
+var StateProvider stateProvider.StateProvider
+
+func (r *Router) InitializeServices(){
+  fmt.Println("Initializing Protected Services\n")
+  r.state_bootstrap()
+}
+
 // func (r *Router) Route(fqdn string) {
 func (r *Router) Route(service string, action string) string {
   msg := fmt.Sprintf("Routing to %s @ %s",action,service)
@@ -54,6 +68,15 @@ func (r *Router) Route(service string, action string) string {
 
 func (r *Router) ParseRoute(fqdn string) {
 
+}
+
+
+func (r *Router) state_bootstrap(){
+  fmt.Println(" Initializing State Provider Loaded\n")
+  StateProvider = stateProvider.StateProvider{IAM:r.IAM}
+  StateProvider = StateProvider.Construct()
+  fmt.Println(" State Provider Loaded\n")
+  r.testState()
 }
 
 func (r *Router) TestPing() string {
@@ -74,4 +97,27 @@ func (r *Router) TestHandshake() string {
 
 func (r *Router) TestIAMProvider() string {
     return r.IAM.TestProvider()
+}
+
+// func (r *Router) testState(consentString string){
+func (r *Router) testState(){
+  fmt.Println("  Running State Test Sequence")
+
+  consentString := r.IAM.Provider.DIDSession()
+  jwt := iam.JWT{Public:consentString}
+
+  fmt.Println("   Client: Running State Read Check With JWT\n")
+  StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
+
+  fmt.Println("   Client: Running State Write Check With JWT\n")
+  StateProvider.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
+
+  fmt.Println("   Client: Running State Write Check With JWT\n")
+  StateProvider.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
+
+  fmt.Println("   Client: Running State Read Check With JWT\n")
+  StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
+
+  fmt.Println("   Client: Running State Read Check With JWT\n")
+  StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,121,131,141}, "ping_world")
 }

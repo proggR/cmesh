@@ -177,7 +177,7 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
 
 
   if sig != expectedConsentSig {
-    fmt.Println("   DID Identity Session Invalid Credentials")
+    fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Credentials:\n    Expected: %d\n    Have: %d\n", expectedConsentSig, sig))
     return ""
   }
 
