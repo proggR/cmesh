@@ -1,13 +1,12 @@
 package main
 import (
   "fmt"
-  // "hash/fnv"
   routerService "node/router"
   iamService "node/iam"
 )
 
-var RouterService routerService.Router
 var IAMService iamService.IAM
+var RouterService routerService.Router
 
 func main() {
     expectedPingbackString := "blah"

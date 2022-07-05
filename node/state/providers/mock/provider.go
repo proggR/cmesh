@@ -2,22 +2,14 @@ package state_mock
 
 import (
   "fmt"
-  // "hash/fnv"
   "node/state"
   "node/iam"
   "node/assembly"
-  //"vendor/cmesh/IRMAProvider"
 )
 
 func stahp(){
   state.Provider()
 }
-
-var IAM iam.IAM
-
-
-var Provider StateProvider// = new(StateProvider).Construct()
-
 
 type StateProvider struct {
   Initialized bool
@@ -25,7 +17,6 @@ type StateProvider struct {
   IAM iam.IAM
 }
 
-// func (s *StateProvider) Construct(iamService iam.IAM) StateProvider {
 func (s *StateProvider) Construct() StateProvider {
   if !s.Initialized {
       s.Initialized = true
@@ -36,7 +27,6 @@ func (s *StateProvider) Construct() StateProvider {
   }
   return *s
 }
-
 
 // func args_to_str(args []byte) string{
 //   b := new(args.Buffer)
@@ -50,26 +40,24 @@ func (s *StateProvider) WriteBlock(msg string){
   var prevIdx int
   var idx int
   var hash uint32
-  // var block state.Block
+
   if len(s.Blocks) == 0 {
     fmt.Println("   WARNING!: NO BLOCKS")
     prevIdx = -1
     hash = 0
     idx = 0;
   } else {
-    fmt.Println("   NOTICE!: BLOCKS")
     idx = len(s.Blocks)
     prevIdx = idx-1
-    fmt.Println(fmt.Sprintf("   NOTICE!: LAST BLOCK INDEX: %d ; MSG: %s",prevIdx,s.Blocks[prevIdx].ExtraData))
+
     hash = s.Blocks[prevIdx].Hash
     // block = s.Blocks[prevIdx]
-    fmt.Println(fmt.Sprintf("   NOTICE!: BLOCK: %d",hash))
+    fmt.Println(fmt.Sprintf("      Last Block Index: %d ;\n      MSG: %s;\n      Last Block Hash: %d\n",prevIdx,s.Blocks[prevIdx].ExtraData,hash))
   }
 
   fmt.Println("   Generating New Block On 'Chain'")
 
   // b := state.Block{Hash:hash+1, Prev: &block,ExtraData:msg}
-
   //b := s.generateBlock(hash,msg)
   hash = hash+1
   // blocks := s.Blocks
@@ -87,17 +75,15 @@ func (s *StateProvider) WriteBlock(msg string){
   fmt.Println(fmt.Sprintf("   Wrote New Block: Prev Hash of %d, New Hash %d\n",prevIdx,len(s.Blocks)-1))
 }
 
+// @TODO: switch WriteBlock to work with this to clean things up
 func (s *StateProvider) generateBlock(prevIdx uint32, msg string) state.Block {
-  b:= state.Block{Hash:uint32(prevIdx+1),ExtraData:msg}//"Generated Block With generateBlock(int)"}
+  b:= state.Block{Hash:uint32(prevIdx+1),ExtraData:msg} //"Generated Block With generateBlock(int)"}
   s.Blocks = append(s.Blocks, b)
   return b
 }
 
 func (s *StateProvider) Read(iamSession iam.JWT, address string, function string, args []byte, callbackFunction string){
     fmt.Println(fmt.Sprintf("   Session public:%s",iamSession.Public))
-    // go func(){
-    //   IAM = <- s.IAM
-    // }()
 
     if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
       msg := fmt.Sprintf("   Read permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
@@ -110,8 +96,6 @@ func (s *StateProvider) Read(iamSession iam.JWT, address string, function string
 }
 
 func (s *StateProvider) Write(iamSession iam.JWT, address string, function string, args []byte, callbackFunction string){
-
-    // iamService := <- s.IAM
     if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
       msg := fmt.Sprintf("   Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)

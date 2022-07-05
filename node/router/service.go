@@ -3,7 +3,6 @@ import(
   "fmt"
   "node/iam"
   stateProvider "node/state/providers/mock"
-
   // iam "node/iam/providers/mock"
   // "node/events/providers/mock"
   // "node/state/providers/mock"
@@ -70,7 +69,6 @@ func (r *Router) ParseRoute(fqdn string) {
 
 }
 
-
 func (r *Router) state_bootstrap(){
   fmt.Println(" Initializing State Provider Loaded\n")
   StateProvider = stateProvider.StateProvider{IAM:r.IAM}
@@ -92,14 +90,13 @@ func (r *Router) TestSession() string {
 }
 
 func (r *Router) TestHandshake() string {
-    return r.IAM.TestHandshake()//r.IAM.TestProvider()
+    return r.IAM.TestHandshake()
 }
 
 func (r *Router) TestIAMProvider() string {
     return r.IAM.TestProvider()
 }
 
-// func (r *Router) testState(consentString string){
 func (r *Router) testState(){
   fmt.Println("  Running State Test Sequence")
 

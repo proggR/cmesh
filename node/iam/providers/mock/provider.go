@@ -6,8 +6,6 @@ import (
   // "node/iam"
   //"vendor/cmesh/IRMAProvider"
 )
-
-
 // Interface type check code. Stashing for later
 // type T struct{}
 // var _ I = T{}       // Verify that T implements I.
@@ -15,9 +13,6 @@ import (
 // Example:
 // var _ iam.IRMAProviderIF = IRMAProvider{}  // Verify that IRMAProvider implements IRMAProviderIF
 // If not implemented: compile time error raised
-
-// var Provider IRMAProvider = new(IRMAProvider).Construct()
-
 
 type IRMAProvider struct {
   Initialized bool
@@ -54,7 +49,6 @@ func (p *IRMAProvider) Construct() IRMAProvider {
       p.DidKey = "kookookachoo"
       p.sessionAlive = false
       p.IamSession = ""
-      // p.iamService = iam.IAMService(&p)
   }
   return *p
 }
@@ -153,20 +147,12 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
     return ""
   }
 
-
-  //var expectedCallSig uint32 = signCall(expectedCallString)
   var expectedAnswerSig uint32 = p.expectedAnswerSig(expectedCallString)
   var expectedAnswerString string = p.genAnswerString(expectedCallString,p.signAnswer(expectedCallString,expectedAnswerSig))
   var expectedOGSig uint32 = p.hash(p.ssiKey+":"+expectedCallString)
   var expectedAnswerAckSig = p.signAnswer(expectedCallString,expectedOGSig)
-
-
-  //var answerAckSig uint32 = signAnswer(expectedCall,sig)
-
-  var confirmedSig uint32 = p.signConfirm(expectedAnswerString, expectedOGSig, expectedAnswerAckSig)
-  var expectedConfirmString string = p.genConfirmString(expectedAnswerString,confirmedSig)
-
-  //var expectedConfirmString string = fmt.Sprintf(expectedAnswerSig+":%d", expectedConfirmSig)
+  var expectedConfirmSig uint32 = p.signConfirm(expectedAnswerString, expectedOGSig, expectedAnswerAckSig)
+  var expectedConfirmString string = p.genConfirmString(expectedAnswerString,expectedConfirmSig)
 
   if expectedConfirmString != confirmString {
     fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Confirmation String:\n Expected:    %s\n    Have: %s\n", expectedConfirmString, confirmString))
@@ -174,7 +160,6 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
   }
 
   var expectedConsentSig = p.signConsent(confirmString)
-
 
   if sig != expectedConsentSig {
     fmt.Println(fmt.Sprintf("   DID Identity Session Invalid Credentials:\n    Expected: %d\n    Have: %d\n", expectedConsentSig, sig))
@@ -185,8 +170,6 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
   p.sessionsCount += 1
   fmt.Println(fmt.Sprintf("   DID Identity Network Auth Handshake #%d Complete",p.sessionsCount))
 
-
-
   var handshakeSig = p.signHandShake(callString, confirmString, sig)
   var session = fmt.Sprintf("%s:%s:%d", callString,confirmString,handshakeSig)
   fmt.Println(fmt.Sprintf("   Generating DID Identity Session Confirmation #%d",p.sessionsCount))
@@ -194,7 +177,6 @@ func (p *IRMAProvider) DIDSessionConsent(did int, callString string, confirmStri
   p.IamSession = session
 
   return session
-
 }
 
 func (p *IRMAProvider) DIDSessionHangup() {
@@ -215,7 +197,6 @@ func (p *IRMAProvider) DIDSessionHangup() {
 func (p *IRMAProvider) rootSSIGen() string {
     if p.ssiAddress == ""{
       p.ssiAddress = "0xSSI:0"
-
       // ssi = true
       fmt.Println(fmt.Sprintf("   Root SSI Identity Generated: Receiver %s",p.ssiAddress))
     }
@@ -235,8 +216,6 @@ func (p *IRMAProvider) genSignCallString(did int,sessionsCount int) string{
 func (p *IRMAProvider) genCallString(did int,sessionsCount int) string{
   var callString = fmt.Sprintf(p.sessionCallPrefix,did,sessionsCount)
   return callString
-  // callString = fmt.Sprintf(callString+":%d", signCall(callString))
-  // return callString
 }
 
 func (p *IRMAProvider) signCall(callString string) uint32 {
@@ -282,10 +261,6 @@ func (p *IRMAProvider) hash(s string) uint32 {
 }
 
 // END OF UTILITY FUNCTIONS
-
-
-
-
 
 // FUTURE ATTRIBUTE RELATED FUNCTIONS
 
