@@ -2,16 +2,20 @@ package main
 import (
   "fmt"
   "strings"
-  iamService "node/iam"
-  routerService "node/router"
-  registrarService "node/registrar"
-  stateProvider "node/state/providers/mock"
+  // core "node/core"
+  services "node/services"
+  // providers "node/providers"
+  stateProvider "node/providers/state/mock"
+  // iamService "node/iam"
+  // routerService "node/router"
+  // registrarService "node/registrar"
+  // stateProvider "node/state/providers/mock"
 )
 
-var IAMService iamService.IAM
-var RouterService routerService.Router
+var IAMService services.IAM
+var RouterService services.Router
 var StateProvider stateProvider.StateProvider
-var RegistrarService registrarService.Registrar
+var RegistrarService services.Registrar
 
 // IAM;
 //Router(IAM);
@@ -19,7 +23,7 @@ var RegistrarService registrarService.Registrar
 //Switch to: Service(Router) once parsing/routing is working, making IAM calls via opcode sent to router instead of leveraging object directly?
 
 type Dispatcher struct {
-  Route routerService.Route
+  Route services.Route
 }
 
 func main() {
@@ -28,7 +32,7 @@ func main() {
     iam_bootstrap()
 
     fmt.Println("Starting Router Service")
-    RouterService = routerService.Router{IAM:IAMService}
+    RouterService = services.Router{IAM:IAMService}
 
     fmt.Println("\nRouter Service Initialized\n Starting Pingback Test")
     msg := RouterService.TestPing()
@@ -74,7 +78,7 @@ func main() {
 
 func (d *Dispatcher) Dispatch(){
   consentString := IAMService.Provider.DIDSession()
-  jwt := iamService.JWT{Public:consentString}
+  jwt := services.JWT{Public:consentString}
 
   if d.Route.Service == "0xS:"{
     s:= strings.Split(d.Route.ResourceString,":")
@@ -102,7 +106,7 @@ func (d *Dispatcher) Dispatch(){
 // }
 
 func iam_bootstrap() {
-    IAMService = iamService.IAM{}
+    IAMService = services.IAM{}
     IAMService = IAMService.IAMService()
 }
 
@@ -121,7 +125,7 @@ func state_bootstrap(){
 
 func registrar_bootstrap(){
   fmt.Println(" Initializing Registrar Service\n")
-  RegistrarService = registrarService.Registrar{IAM:IAMService,Router:RouterService}
+  RegistrarService = services.Registrar{IAM:IAMService,Router:RouterService}
   RegistrarService = RegistrarService.Construct()
   fmt.Println(" Registrar Service Loaded\n")
 }
@@ -136,7 +140,7 @@ func router_connect_services(){
 
 func parse_test_routes(){
   consentString := IAMService.Provider.DIDSession()
-  jwt := iamService.JWT{Public:consentString}
+  jwt := services.JWT{Public:consentString}
 
   fqmn1 := "0xS:0x001:hello_world"
   fqmn2 := "0xR:helloWorld.mcom"
@@ -176,7 +180,7 @@ func TestState(){
   fmt.Println("  Running State Test Sequence")
 
   consentString := IAMService.Provider.DIDSession()
-  jwt := iamService.JWT{Public:consentString}
+  jwt := services.JWT{Public:consentString}
 
   fmt.Println("   Client: Running State Read Check With JWT\n")
   StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
@@ -198,7 +202,7 @@ func TestRegistrar(){
   fmt.Println("  Running Registrar Test Sequence")
 
   consentString := IAMService.Provider.DIDSession()
-  jwt := iamService.JWT{Public:consentString}
+  jwt := services.JWT{Public:consentString}
 
   fmt.Println("   Client: Running Registrar Named Contract Registration With JWT\n")
   msg := RegistrarService.Register(jwt, "helloWorld.mcom", "0xS:0x001")

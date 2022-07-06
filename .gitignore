@@ -1,4 +1,4 @@
 .env
 .*Conf
-state/.state
-state/.state/*
+core/.state
+core/.state/*
