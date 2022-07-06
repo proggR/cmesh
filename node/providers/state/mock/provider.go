@@ -11,14 +11,16 @@ import (
 // }
 
 type StateProvider struct {
+  services.ServiceProviderSeed
   Initialized bool
   Blocks []services.Block
-  IAM core.IAM
-  Router core.Router
+  // IAM core.IAM
+  // Router core.RouterIF
 }
 
-func (s *StateProvider) Construct() StateProvider {
+func (s *StateProvider) Construct(router core.Router) StateProvider {
   if !s.Initialized {
+      s.RouterInst = router
       s.Initialized = true
       // b := state.Block{Hash:0,ExtraData: "Genesis Block"}
       // s.Blocks = append(s.Blocks, b)
@@ -26,6 +28,18 @@ func (s *StateProvider) Construct() StateProvider {
       fmt.Println("   GENESIS BLOCK GENERATED\n")
   }
   return *s
+}
+
+func (s *StateProvider) TestRouterResolution(dispatcher services.Dispatcher) {
+  fmt.Println("   TESTING STATE PROVIDER ROUTING RESOLUTION\n")
+  router := s.Router()
+  iam := s.IAM()
+  route := router.ParseRoute(iam.Jwt,"0xR:helloWorld.mcom")
+  fmt.Println(fmt.Sprintf("      Resource String Returned: %s\n      Dispatching Now\n",route.ResourceString))
+  dispatcher.Route = route
+  dispatcher.Dispatch()
+  // fqmn := dispatcher.Dispatch()
+  fmt.Println(fmt.Sprintf("      DISPATCHED FROM STATE PROVIDER THROUGH ROUTER TO REGSTRAR"))
 }
 
 // func args_to_str(args []byte) string{
@@ -84,8 +98,8 @@ func (s *StateProvider) generateBlock(prevIdx uint32, msg string) services.Block
 
 func (s *StateProvider) Read(iamSession core.JWT, address string, function string, args []byte, callbackFunction string){
     fmt.Println(fmt.Sprintf("   Session public:%s",iamSession.Public))
-
-    if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
+    iam := s.IAM()
+    if !iam.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
       msg := fmt.Sprintf("   Read permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return
@@ -96,7 +110,8 @@ func (s *StateProvider) Read(iamSession core.JWT, address string, function strin
 }
 
 func (s *StateProvider) Write(iamSession core.JWT, address string, function string, args []byte, callbackFunction string){
-    if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
+    iam := s.IAM()
+    if !iam.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
       msg := fmt.Sprintf("   Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return

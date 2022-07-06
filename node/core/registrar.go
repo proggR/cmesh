@@ -8,7 +8,7 @@ import(
 
 type Registrar struct{
   IAM IAM
-  Router Router
+  Router RouterIF
   domainMappings map[string]string
 }
 

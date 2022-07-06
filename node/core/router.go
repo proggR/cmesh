@@ -45,7 +45,7 @@ import(
 //
 
 type Router struct {
-  IAM IAM
+  iam IAM
   // Registrar registrarService.Registrar
   // State stateProvider.StateProvider
   RouterDID string
@@ -63,11 +63,11 @@ type Route struct {
   ResponseCode int
 }
 
-func (r *Router) InitializeServices(){
-  fmt.Println("Initializing Protected Services\n")
-  // r.state_bootstrap()
-  // r.registrar_bootstrap()
-}
+// func (r *Router) InitializeServices(){
+//   fmt.Println("Initializing Protected Services\n")
+//   // r.state_bootstrap()
+//   // r.registrar_bootstrap()
+// }
 
 // func (r *Router) Route(fqdn string) {
 func (r *Router) Route(service string, action string) string {
@@ -76,6 +76,13 @@ func (r *Router) Route(service string, action string) string {
   return msg
 }
 
+func (r *Router) IAM() IAM{
+  return r.iam
+}
+
+func (r *Router) Identify(iam IAM){
+  r.iam = iam
+}
 
 /**
 * Example image of groups in assets/images/parsing_regex.png
@@ -118,21 +125,35 @@ func (r *Router) ParseRoute(jwt JWT, fqmn string) Route{
 }
 
 func (r *Router) Ping() string {
-  msg := r.IAM.Test
+  iam := r.iam
+  msg := iam.Test
   fmt.Println(msg)
   return msg
 }
 
 func (r *Router) Session() string {
-  msg := r.IAM.Provider.DIDSession()
+  iam := r.iam
+  msg := iam.Provider.DIDSession()
   fmt.Println(fmt.Sprintf("   Router Session Test:\n    Response: %s",msg))
   return msg
 }
 
-func (r *Router) Handshake() string {
-    return r.IAM.TestHandshake()
+func (r *Router) Handshake(disconnectAfter bool) string {
+    iam := r.iam
+    return iam.TestHandshake()
 }
 
 func (r *Router) TestIAMProvider() string {
-    return r.IAM.TestProvider()
+    iam := r.iam
+    return iam.TestProvider()
+}
+
+func (r *Router) TestRegistrar() {
+    // iam := r.iam
+    // return iam.TestProvider()
+}
+
+func (r *Router) TestState() {
+    // iam := r.iam
+    // return iam.TestProvider()
 }

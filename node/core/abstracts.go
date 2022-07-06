@@ -7,6 +7,10 @@ type IAMIF interface {
 
 }
 
+// type ServiceLayerIF interface {
+//
+// }
+
 type IRMAProviderIF interface {
     DIDGen() string
     DIDSession() string
@@ -19,17 +23,22 @@ type IRMAProviderIF interface {
     TestProvider() string
 }
 
-
-// type RouterIF interface{
-//   Route(string,string) string
-//   ParseRoute(string)
-//   Ping() string
-//   Session() string
-//   Handshake(bool) string
-//   TestIAMProvider() string
-//   TestState()
-//   TestRegistrar()
+// type RouterSeed struct{
+//   IAM IAM
 // }
+
+type RouterIF interface{
+  IAM() IAM
+  Identify(IAM) 
+  Route(string,string) string
+  ParseRoute(JWT,string) Route
+  Ping() string
+  Session() string
+  Handshake(bool) string
+  TestIAMProvider() string
+  TestState()
+  TestRegistrar()
+}
 //
 // type ServiceIF struct{
 //
