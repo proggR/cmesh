@@ -2,6 +2,7 @@ package providers
 
 import (
   "fmt"
+  core "node/core"
   services "node/services"
 )
 
@@ -12,7 +13,7 @@ import (
 type StateProvider struct {
   Initialized bool
   Blocks []services.Block
-  IAM services.IAM
+  IAM core.IAM
   Router services.Router
 }
 
@@ -81,7 +82,7 @@ func (s *StateProvider) generateBlock(prevIdx uint32, msg string) services.Block
   return b
 }
 
-func (s *StateProvider) Read(iamSession services.JWT, address string, function string, args []byte, callbackFunction string){
+func (s *StateProvider) Read(iamSession core.JWT, address string, function string, args []byte, callbackFunction string){
     fmt.Println(fmt.Sprintf("   Session public:%s",iamSession.Public))
 
     if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
@@ -94,7 +95,7 @@ func (s *StateProvider) Read(iamSession services.JWT, address string, function s
     s.WriteBlock(msg)
 }
 
-func (s *StateProvider) Write(iamSession services.JWT, address string, function string, args []byte, callbackFunction string){
+func (s *StateProvider) Write(iamSession core.JWT, address string, function string, args []byte, callbackFunction string){
     if !s.IAM.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
       msg := fmt.Sprintf("   Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
@@ -105,14 +106,14 @@ func (s *StateProvider) Write(iamSession services.JWT, address string, function 
     s.WriteBlock(msg)
 }
 
-func deploy(iamSession services.JWT, address string, abi services.ABI, script services.WASMScript, callbackFunction string){
+func deploy(iamSession core.JWT, address string, abi services.ABI, script services.WASMScript, callbackFunction string){
   fmt.Println(fmt.Sprintf("State of %s had contract %s deployed by %s passing callback: %s",address,script.Script,iamSession.Public,callbackFunction))
 }
 
-func replace(iamSession services.JWT, address string, addressIngress string, addressEgress string, updateStrategy string, abi services.ABI, script services.WASMScript, callbackFunction string){
+func replace(iamSession core.JWT, address string, addressIngress string, addressEgress string, updateStrategy string, abi services.ABI, script services.WASMScript, callbackFunction string){
   fmt.Println(fmt.Sprintf("State of %s had contract %s replaced by %s using update strategy %s  passing callback: %s",address,script.Script,iamSession.Public,updateStrategy,callbackFunction))
 }
 
-func proxy(iamSession services.JWT, proxyStrategy string, addressIngress string, addressEgress string, callbackFunction string){
+func proxy(iamSession core.JWT, proxyStrategy string, addressIngress string, addressEgress string, callbackFunction string){
   fmt.Println(fmt.Sprintf("State of %s proxied to %s by %s using proxy strategy %s passing callback: %s",addressIngress, addressEgress,iamSession.Public,proxyStrategy,callbackFunction))
 }

@@ -2,9 +2,10 @@ package main
 import (
   "fmt"
   "strings"
-  // core "node/core"
+  core "node/core"
   services "node/services"
   // providers "node/providers"
+  iamProvider "node/providers/iam/mock"
   stateProvider "node/providers/state/mock"
   // iamService "node/iam"
   // routerService "node/router"
@@ -12,7 +13,7 @@ import (
   // stateProvider "node/state/providers/mock"
 )
 
-var IAMService services.IAM
+var IAMService core.IAM
 var RouterService services.Router
 var StateProvider stateProvider.StateProvider
 var RegistrarService services.Registrar
@@ -78,7 +79,7 @@ func main() {
 
 func (d *Dispatcher) Dispatch(){
   consentString := IAMService.Provider.DIDSession()
-  jwt := services.JWT{Public:consentString}
+  jwt := core.JWT{Public:consentString}
 
   if d.Route.Service == "0xS:"{
     s:= strings.Split(d.Route.ResourceString,":")
@@ -106,8 +107,10 @@ func (d *Dispatcher) Dispatch(){
 // }
 
 func iam_bootstrap() {
-    IAMService = services.IAM{}
-    IAMService = IAMService.IAMService()
+    IAMService = core.IAM{}
+    iamp := &iamProvider.IRMAProvider{}
+    iamp.Construct()
+    IAMService = IAMService.IAMService(iamp)
 }
 
 func initialize_protected_services(){
@@ -140,7 +143,7 @@ func router_connect_services(){
 
 func parse_test_routes(){
   consentString := IAMService.Provider.DIDSession()
-  jwt := services.JWT{Public:consentString}
+  jwt := core.JWT{Public:consentString}
 
   fqmn1 := "0xS:0x001:hello_world"
   fqmn2 := "0xR:helloWorld.mcom"
@@ -180,7 +183,7 @@ func TestState(){
   fmt.Println("  Running State Test Sequence")
 
   consentString := IAMService.Provider.DIDSession()
-  jwt := services.JWT{Public:consentString}
+  jwt := core.JWT{Public:consentString}
 
   fmt.Println("   Client: Running State Read Check With JWT\n")
   StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
@@ -202,7 +205,7 @@ func TestRegistrar(){
   fmt.Println("  Running Registrar Test Sequence")
 
   consentString := IAMService.Provider.DIDSession()
-  jwt := services.JWT{Public:consentString}
+  jwt := core.JWT{Public:consentString}
 
   fmt.Println("   Client: Running Registrar Named Contract Registration With JWT\n")
   msg := RegistrarService.Register(jwt, "helloWorld.mcom", "0xS:0x001")

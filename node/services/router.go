@@ -2,6 +2,7 @@ package services
 import(
   "fmt"
   "regexp"
+  core "node/core"
   // stateProvider "node/state/providers/mock"
   // registrarService "node/registrar"
   // iam "node/iam/providers/mock"
@@ -44,7 +45,7 @@ import(
 */
 
 type Router struct {
-  IAM IAM
+  IAM core.IAM
   // Registrar registrarService.Registrar
   // State stateProvider.StateProvider
   RouterDID string
@@ -107,7 +108,7 @@ func (r *Router) Route(service string, action string) string {
 * Else If Group 4 ! empty: process first
 * Else use Group 3 as address string
 */
-func (r *Router) ParseRoute(jwt JWT, fqmn string) Route{
+func (r *Router) ParseRoute(jwt core.JWT, fqmn string) Route{
   /**
   * /^(0xS:|0xR:|0xI:)((.*)((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*)))/
   */

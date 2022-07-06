@@ -3,6 +3,23 @@ import(
   // "fmt"
 )
 
+type IAMIF interface {
+
+}
+
+type IRMAProviderIF interface {
+    DIDGen() string
+    DIDSession() string
+    DIDAuth(bool) string
+    // dIDSessionCall() string
+    DIDSessionAnswer(int,string,uint32) string
+    // dIDSessionConfirm() string
+    DIDSessionConsent(int, string, string, uint32) string
+    DIDSessionHangup()
+    TestProvider() string
+}
+
+
 // type RouterIF interface{
 //   Route(string,string) string
 //   ParseRoute(string)
