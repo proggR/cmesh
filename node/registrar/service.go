@@ -2,10 +2,12 @@ package registrar
 import(
   "fmt"
   "node/iam"
+  routerService "node/router"
 )
 
 type Registrar struct{
   IAM iam.IAM
+  Router routerService.Router
   domainMappings map[string]string
 }
 

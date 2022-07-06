@@ -1,9 +1,10 @@
 package router
 import(
   "fmt"
+  "regexp"
   "node/iam"
-  stateProvider "node/state/providers/mock"
-  registrarService "node/registrar"
+  // stateProvider "node/state/providers/mock"
+  // registrarService "node/registrar"
   // iam "node/iam/providers/mock"
   // "node/events/providers/mock"
   // "node/state/providers/mock"
@@ -45,6 +46,8 @@ import(
 
 type Router struct {
   IAM iam.IAM
+  // Registrar registrarService.Registrar
+  // State stateProvider.StateProvider
   RouterDID string
   OperatorDID string
   RegistrarTx uint32
@@ -52,13 +55,30 @@ type Router struct {
   ZKHash uint32
 }
 
-var StateProvider stateProvider.StateProvider
-var RegistrarService registrarService.Registrar
+type Route struct {
+  FQMN string
+  Service string
+  Action string
+  ResourceString string
+  ResponseCode int
+}
+
+
+type RouterIF interface{
+  Route(string,string) string
+  ParseRoute(string)
+  TestPing() string
+  TestSession() string
+  TestHandshake() string
+  TestIAMProvider() string
+  TestState()
+  TestRegistrar()
+}
 
 func (r *Router) InitializeServices(){
   fmt.Println("Initializing Protected Services\n")
-  r.state_bootstrap()
-  r.registrar_bootstrap()
+  // r.state_bootstrap()
+  // r.registrar_bootstrap()
 }
 
 // func (r *Router) Route(fqdn string) {
@@ -68,24 +88,45 @@ func (r *Router) Route(service string, action string) string {
   return msg
 }
 
-func (r *Router) ParseRoute(fqdn string) {
 
-}
+/**
+* Example image of groups in assets/images/parsing_regex.png
+* Group 1: Target Service Opcode
+* Group 2: Target Service Unresolved Group up to 3 levels deep of address resolution (generally not used on its own unless you know why you need to)
+* Group 3: Target Service Address String
+* Group 4: First FQMN Identified
+* Group 5: Protocol Opcode of FQMN Identified
+* Group 6: Service Adress String for Protocol
+* Group 7: same as Group 4, but for second FQMN
+* Group 8: same as Group 5, but for second FQMN
+* Group 9: same as Group 6, but for second FQMN
+* Group 10: same as Group 4, but for third FQMN
+* Group 11: same as Group 5, but for third FQMN
+* Group 12: same as Group 6, but for third FQMN
+* If Group 10 ! empty: process first
+* Else If Group 7 ! empty: process first
+* Else If Group 4 ! empty: process first
+* Else use Group 3 as address string
+*/
+func (r *Router) ParseRoute(jwt iam.JWT, fqmn string) Route{
+  /**
+  * /^(0xS:|0xR:|0xI:)((.*)((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*)))/
+  */
+  fmt.Println(fmt.Sprintf("   Matching %s",fqmn))
+  // reg, _ := regexp.Compile("/^(0xS:|0xR:|0xI:)((.*)((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*)))/")
+  regex := *regexp.MustCompile(`^(0xS:|0xR:|0xI:)((.*)((0xS:|0xR:|0xI:)(.*))?((0xS:|0xR:|0xI:)(.*))?((0xS:|0xR:|0xI:)(.*))?)`)
+  res := regex.FindAllStringSubmatch(fqmn, -1)
+  if len(res) == 0 {
+    fmt.Println("NO MATCHES?")
+  }
+  var rt Route = Route{FQMN: fqmn, ResponseCode: 400}
+  for i := range res {
+      //like Java: match.group(1), match.gropu(2), etc
+      fmt.Printf("    OpCode: %s,\n    Unresolved Address: %s,\n    Address String: %s,\n    Unresolved SubAddress 1: %s\n", res[i][1], res[i][2], res[i][3], res[i][4])
+      rt = Route{FQMN:fqmn,Service: res[i][1],ResourceString:res[i][3], ResponseCode: 200}
+  }
 
-func (r *Router) state_bootstrap(){
-  fmt.Println(" Initializing State Provider\n")
-  StateProvider = stateProvider.StateProvider{IAM:r.IAM}
-  StateProvider = StateProvider.Construct()
-  fmt.Println(" State Provider Loaded\n")
-  r.testState()
-}
-
-func (r *Router) registrar_bootstrap(){
-  fmt.Println(" Initializing Registrar Service\n")
-  RegistrarService = registrarService.Registrar{IAM:r.IAM}
-  RegistrarService = RegistrarService.Construct()
-  fmt.Println(" Registrar Service Loaded\n")
-  r.testRegistrar()
+  return rt
 }
 
 func (r *Router) TestPing() string {
@@ -106,57 +147,4 @@ func (r *Router) TestHandshake() string {
 
 func (r *Router) TestIAMProvider() string {
     return r.IAM.TestProvider()
-}
-
-func (r *Router) testState(){
-  fmt.Println("  Running State Test Sequence")
-
-  consentString := r.IAM.Provider.DIDSession()
-  jwt := iam.JWT{Public:consentString}
-
-  fmt.Println("   Client: Running State Read Check With JWT\n")
-  StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
-
-  fmt.Println("   Client: Running State Write Check With JWT\n")
-  StateProvider.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
-
-  fmt.Println("   Client: Running State Write Check With JWT\n")
-  StateProvider.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
-
-  fmt.Println("   Client: Running State Read Check With JWT\n")
-  StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
-
-  fmt.Println("   Client: Running State Read Check With JWT\n")
-  StateProvider.Read(jwt, "0x001", "hello_world", []byte{111,121,131,141}, "ping_world")
-}
-
-func (r *Router) testRegistrar(){
-  fmt.Println("  Running Registrar Test Sequence")
-
-  consentString := r.IAM.Provider.DIDSession()
-  jwt := iam.JWT{Public:consentString}
-
-  fmt.Println("   Client: Running Registrar Named Contract Registration With JWT\n")
-  msg := RegistrarService.Register(jwt, "helloWorld.mcom", "0xS:0x001")
-  fmt.Println(fmt.Sprintf("   Named Contract Mapping Response: %s\n",msg))
-
-  fmt.Println("   Client: Running Registrar Named Function Registration With JWT\n")
-  msg = RegistrarService.Register(jwt, "helloWorldExample.mcom", "0xS:0x001:hello_world")
-  fmt.Println(fmt.Sprintf("   Named Function Mapping Response: %s\n",msg))
-
-  fmt.Println("   Client: Running Registrar Taken Name Registration With JWT\n")
-  msg = RegistrarService.Register(jwt, "helloWorldExample.mcom", "0xS:0x001:goodnight_world")
-  fmt.Println(fmt.Sprintf("   Named Function Mapping Response (should be blank): %s\n",msg))
-
-  fmt.Println("   Client: Running Registrar Named Contract Resolution With JWT\n")
-  msg = RegistrarService.Resolve(jwt, "helloWorld.mcom")
-  fmt.Println(fmt.Sprintf("   Named Contract FQMN Response: %s\n",msg))
-
-  fmt.Println("   Client: Running Registrar Named Function Resolution With JWT\n")
-  msg = RegistrarService.Resolve(jwt, "helloWorldExample.mcom")
-  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
-
-  fmt.Println("   Client: Running Registrar Unregistered Name Resolution With JWT\n")
-  msg = RegistrarService.Resolve(jwt, "google.com")
-  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
 }

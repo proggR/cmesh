@@ -4,6 +4,7 @@ import (
   "fmt"
   "node/state"
   "node/iam"
+  "node/router"
   "node/assembly"
 )
 
@@ -15,6 +16,7 @@ type StateProvider struct {
   Initialized bool
   Blocks []state.Block
   IAM iam.IAM
+  Router router.Router
 }
 
 func (s *StateProvider) Construct() StateProvider {
