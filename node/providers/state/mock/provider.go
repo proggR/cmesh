@@ -14,7 +14,7 @@ type StateProvider struct {
   Initialized bool
   Blocks []services.Block
   IAM core.IAM
-  Router services.Router
+  Router core.Router
 }
 
 func (s *StateProvider) Construct() StateProvider {

@@ -3,7 +3,7 @@ import (
   "fmt"
   "strings"
   core "node/core"
-  services "node/services"
+  // services "node/services"
   // providers "node/providers"
   iamProvider "node/providers/iam/mock"
   stateProvider "node/providers/state/mock"
@@ -14,9 +14,9 @@ import (
 )
 
 var IAMService core.IAM
-var RouterService services.Router
+var RouterService core.Router
 var StateProvider stateProvider.StateProvider
-var RegistrarService services.Registrar
+var RegistrarService core.Registrar
 
 // IAM;
 //Router(IAM);
@@ -24,7 +24,7 @@ var RegistrarService services.Registrar
 //Switch to: Service(Router) once parsing/routing is working, making IAM calls via opcode sent to router instead of leveraging object directly?
 
 type Dispatcher struct {
-  Route services.Route
+  Route core.Route
 }
 
 func main() {
@@ -33,10 +33,10 @@ func main() {
     iam_bootstrap()
 
     fmt.Println("Starting Router Service")
-    RouterService = services.Router{IAM:IAMService}
+    RouterService = core.Router{IAM:IAMService}
 
     fmt.Println("\nRouter Service Initialized\n Starting Pingback Test")
-    msg := RouterService.TestPing()
+    msg := RouterService.Ping()
     fmt.Println(fmt.Sprintf("  Pingback test results:\n   Expecting: %s\n   Have: %s\n",expectedPingbackString, msg))
 
     if(msg != expectedPingbackString){
@@ -54,7 +54,7 @@ func main() {
     }
 
     fmt.Println(" Starting Router IAM Session Test")
-    msg = RouterService.TestSession()
+    msg = RouterService.Session()
     fmt.Println(fmt.Sprintf("   Router IAM Session Test results:\n    Response: %s\n", msg))
     if(msg == ""){
       fmt.Println("Router IAM Session Test Failed. Check Router config and try again.")
@@ -64,7 +64,7 @@ func main() {
     }
 
     fmt.Println(" Starting Router IAM Handshake Test")
-    msg = RouterService.TestHandshake()
+    msg = RouterService.Handshake()
     fmt.Println(fmt.Sprintf("\n   Router IAM Handshake Test results:\n    Response: %s\n", msg))
     if(msg == ""){
       fmt.Println(" Router IAM Handshake Test Failed. Check Router config and try again.")
@@ -128,7 +128,7 @@ func state_bootstrap(){
 
 func registrar_bootstrap(){
   fmt.Println(" Initializing Registrar Service\n")
-  RegistrarService = services.Registrar{IAM:IAMService,Router:RouterService}
+  RegistrarService = core.Registrar{IAM:IAMService,Router:RouterService}
   RegistrarService = RegistrarService.Construct()
   fmt.Println(" Registrar Service Loaded\n")
 }
