@@ -11,6 +11,7 @@ type DispatcherIF interface {
     Connect(core.RouterIF)
     Test()
     State()StateProviderIF
+    SetRoute(core.Route)
     SetState(StateProviderIF)
     Registrar()core.RegistrarIF
     SetRegistrar(core.RegistrarIF)
@@ -54,6 +55,11 @@ func (d *Dispatcher) State() StateProviderIF{
 func (d *Dispatcher) Registrar() core.RegistrarIF{
   return d.RegistrarService
 }
+
+func (d *Dispatcher) SetRoute(route core.Route) {
+  d.Route = route
+}
+
 func (d *Dispatcher) SetState(state StateProviderIF) {
   d.StateProvider = state
 }

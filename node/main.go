@@ -36,7 +36,7 @@ func main() {
 
     fmt.Println("   Service Layer Connected\n")
 
-    state_bootstrap()
+    state := state_bootstrap()
 
     registrar_bootstrap()
 
@@ -45,6 +45,8 @@ func main() {
     dispatcher.Test()
 
     fmt.Println("   Dispatcher Tests Completed\n")
+
+    state.TestRouterResolution()
 
     fmt.Println(" Services Initialized\n\n")
 

@@ -12,7 +12,7 @@ type StateProviderIF interface{
   ServiceProviderIF
   Read(core.JWT, string, string, []byte, string)
   Write(core.JWT, string, string, []byte, string)
-  TestRouterResolution(Dispatcher)
+  TestRouterResolution()
 }
 
 type StateServiceIF interface{

@@ -34,16 +34,19 @@ func (s *StateProvider) Test() {
   fmt.Println("STATE TEST")
 }
 
-func (s *StateProvider) TestRouterResolution(dispatcher services.Dispatcher) {
-  fmt.Println("   TESTING STATE PROVIDER ROUTING RESOLUTION\n")
+// func (s *StateProvider) TestRouterResolution(dispatcher services.Dispatcher) {
+func (s *StateProvider) TestRouterResolution() {
+  fmt.Println("\n\nTHE FINAL TEST\n   TESTING STATE PROVIDER ROUTING RESOLUTION\n")
   router := s.Router()
   iam := s.IAM()
   route := router.ParseRoute(iam.Jwt,"0xR:helloWorld.mcom")
   fmt.Println(fmt.Sprintf("      Resource String Returned: %s\n      Dispatching Now\n",route.ResourceString))
-  dispatcher.Route = route
+  dispatcher := s.Dispatcher()
+  dispatcher.SetRoute(route)
   dispatcher.Dispatch()
   // fqmn := dispatcher.Dispatch()
-  fmt.Println(fmt.Sprintf("      DISPATCHED FROM STATE PROVIDER THROUGH ROUTER TO REGSTRAR"))
+  fmt.Println(fmt.Sprintf(" FINAL TEST COMPLETE\n"))
+  fmt.Println(fmt.Sprintf(" ROUTED FROM STATE PROVIDER -> ROUTER -> DISPATCHER -> REGISTRAR -> DISPATCHER -> STATE PROVIDER\n"))
 }
 
 // func args_to_str(args []byte) string{
