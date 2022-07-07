@@ -18,15 +18,15 @@ The components identified and providers/stacks chosen are the following:
 
 ### Router & Registrar: CMesh Nodes
 
-In this model, the CMesh node running is acting as a router for the network. Each router itself must authenticate their DID via IRMA handshake, and it is responsible for bootstrapping the protected services once the IAM and Router services have initialized and completed their handshake process.
+In this model, the CMesh node running is acting as a router for the network, protecting the services operating behind its IAM gateway. Each router itself must authenticate their DID via IRMA handshake, and it is responsible for bootstrapping the protected services once the IAM and Router services have initialized and completed their handshake process.
 
-The Router will support a function oriented address scheme I'm calling `FQMN` (fully qualified mesh name... original, I know...) that routes requests to protected services and returns the response while also invoking a consensus check on the response (to be defined as mock consensus service is rolled).
+The Router supports a function oriented address scheme I'm calling `FQMN` (fully qualified mesh name... original, I know...) that routes requests to protected services and returns the response while also invoking a consensus check on the response (to be defined as mock consensus service is rolled).
 
-A 3 service toy model is now cobbled together, first initializing the IAM service, then passing it to the Router service, and then after running its IRMA handshake test the router initializes its protected services (for now just state), and runs through the state test, calling back to the IAM service to authenticate requests before invoking state calls (read or write makes no difference, JWT needs to be valid first).
+A 4 component (IAM, Router/Dispatcher, Registrar, State) toy model is now cobbled together, first initializing the IAM service, then passing it to the Router service, and then after running its IRMA handshake test the router initializes its protected services (for now state & registrar), connecting each to the router and attaching each to the Dispatcher, and then runs through the `testState`, `testRegistrar` (necessary to succeed for the next test to resolve most addresses) and `parse_test_routes` methods of the Dispatcher, which uses the router to resolve route objects that are then dispatched to the appropriate services, calling back to the IAM service to authenticate requests before invoking state calls (read or write makes no difference, JWT needs to be valid first).
 
-The Registrar will be used to create and resolve named services, much like a normal domain registrar, making it easier to stitch distributed systems together.
+The Registrar is used to create and resolve named services, much like a normal domain registrar, making it easier to stitch distributed systems together.
 
-Note: this isn't actually using FQMN routing yet, just function calls from test sequences. FQMN parsing and its related Registrar resolution hooks are next on the docket. Examples of FQMN structure and usage can be found in `router/service.go`
+Examples of FQMN structure and usage can be found in `services/router.go`
 
 ### Identity Management and Auth: IRMA
 
@@ -34,9 +34,11 @@ Note: this isn't actually using FQMN routing yet, just function calls from test 
 
 IRMA is a beautiful spec, and in this case not being dependent or built for blockchain makes it the perfect choice for... whatever this is :\ lol. All sessions are first authenticated through IRMA, and JWTs are passed as needed via relevant NATS subjects (need to research this a ton more to be sure I fully grok both systems... this portion is the most critical component. feel like gRPC will be necessary, with NATS subjects being used for zk logs, but need to research this architecture first/thoroughly).
 
-As noted above, this is one of the more "functional" parts of the toy atm. In `node/main.go` there's an `iam_bootstrap` call that first instantiates the IAM service, and then injects the IAM service into the Router service. It then calls the router's `TestSession` and `TestHandshake` methods that walks through the IRMA handshake process, then triggers the router's `testState` method which calls a few reads/writes on the state service that are committed to a toy blockchain. Very much a toy given the private keys are shared between "client" and "server" (main and iam) and its using a hash function that's more convenient than secure. Also doesn't currently contain any of the attribute level functionality of IRMA systems. Service level state and struct/interface definitions live in `iam/service.go`, while `iam/providers/mock/provider.go` contains the mock provider API implementation. The initial struct-less implementation of the API has been added as the provider `toy`.
+As noted above, this is one of the more "functional" parts of the toy atm. In `node/main.go` there's an `iam_bootstrap` call that first instantiates the IAM service, and then injects the IAM service into the Router service. It then calls the router's `TestSession` and `TestHandshake` methods that walks through the IRMA handshake process, then triggers the Dispatcher's `testState` method which calls a few reads/writes on the state service that are committed to a toy blockchain, and `testRegistrar` method which registers some FQMN addresses against `.mcom` domains.
 
-Docs for existing toy version can be found in [node/iam/README](node/iam/README.md). Unit test coverage for public handshake steps for both valid and invalid credentials.
+Very much a toy given the private keys are shared between "client" and "server" (main and iam) and its using a hash function that's more convenient than secure. Also doesn't currently contain any of the attribute level functionality of IRMA systems. Service level state and struct/interface definitions live in `services/iam.go`, while `providers/iam/mock/provider.go` contains the mock provider API implementation. The initial struct-less implementation of the API has been added as the provider `toy`.
+
+Docs for existing toy version can be found in [node/services/README.md](node/iam/README.md). Unit test coverage for public handshake steps for both valid and invalid credentials for toy version exists. Updated per-use case/function documentation and unit test coverage to follow.
 
 ### Event Sourcing Pipelines: NATS
 
@@ -50,7 +52,7 @@ NATS underwrites the entire machine's comms, from reads, to writes, to zk auth l
 
 Requiring storage, but not wanting to bloat the node's logic with rolling some kind of custom storage mechanism, the HyperCore stack stands out as an ideal option for carving up necessary event sourced data and persisting it in a way that should respect privacy while improving in performance with scale instead of degrading (I believe).
 
-A state service layer has been started at `state/service.go` and a Mock service provider has been started at `state/providers/mock`. It exposes `Read` and `Write` functions that first confirm with the `iam` service layer that a) a valid session exists (all requests to all services must have a valid JWT, or its required they be forced to the Auth() process to establish a session with the network), and b) the user has the required permissions for that service/resource. 
+A state service layer has been started at `services/state.go` and a Mock service provider has been started at `providers/state/mock/provider.go`. It exposes `Read` and `Write` functions that first confirm with the `iam` service that a) a valid session exists (all requests to all services must have a valid JWT, or its required they be forced to the Auth() process to establish a session with the network), and b) the user has the required permissions for that service/resource.
 
 ### Smart Contract Runtime: WASMI
 

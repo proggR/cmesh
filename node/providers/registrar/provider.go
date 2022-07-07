@@ -1,7 +1,7 @@
 package providers
 
 import(
-  // "fmt"
+  "fmt"
   core "node/core"
   services "node/services"
 )
@@ -21,8 +21,8 @@ func (r *RegistrarProvider) IAM() core.IAM{
 
 func (r *RegistrarProvider) Construct(router core.RouterIF) RegistrarProvider {
   if !r.Initialized {
-      // r.RouterInst = router
       r.service = "0xR:"
+      r.Init()
       r.Connect(router)
       d := r.Dispatcher()
       d.SetRegistrar(r)
@@ -32,8 +32,5 @@ func (r *RegistrarProvider) Construct(router core.RouterIF) RegistrarProvider {
 }
 
 func (sp *RegistrarProvider) Test(){
-  // router_connect_services()
-  d := sp.Dispatcher()
-  d.Test()
-  // sp.Dispatcher.StateProvider.TestRouterResolution(sp.Dispatcher)
+  fmt.Println("REGISTRAR TEST")
 }

@@ -2,12 +2,9 @@ package core
 
 import(
   "fmt"
-  // "node/iam"
-  // routerService "node/router"
 )
 
 type Registrar struct{
-  // ProtectedSeed
   domainMappings map[string]string
 }
 
@@ -18,7 +15,7 @@ type RegistrarIF interface{
 }
 
 
-func (r *Registrar) Construct() Registrar{
+func (r *Registrar) Init() Registrar{
   r.domainMappings = map[string]string{}
   return *r
 }

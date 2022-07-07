@@ -46,9 +46,10 @@ func (i *IAM) TestProvider() string {
 }
 
 func (i *IAM) ValidatePermissions(jwt JWT, component string, serviceProvider string, service string, action string) bool{
-  iamSession := i.Provider.DIDSession() // to test valid credentials against IAM service (only valid if valid, else invalid)
   // iamSession := "nope" // to test invalid credentials (even with valid ones)
   // iamSession := "0xDID:0:0:3442982940:0xDID:0:0:3442982940:2217691735:17689483:4255629929" // to test valid credentials (even with invalid ones)
+
+  iamSession := i.Provider.DIDSession() // to test valid credentials against IAM service (only valid if valid, else invalid)
   if jwt.Public == "" || jwt.Public != iamSession {
     fmt.Println("No valid IAM session to validate")
     return false
@@ -100,6 +101,7 @@ func (i *IAM) TestHandshake() string{
 
   fmt.Println("   Client: Call Consented\n")
 
+  //@NOTE: uncomment if you want initial handshake to auto-hangup and kill the session
   // i.Provider.DIDSessionHangup()
   return consentString
 }

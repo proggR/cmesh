@@ -8,7 +8,6 @@ func Provider() {
     fmt.Println("Distributed State Provider Loaded")
 }
 
-
 type StateProviderIF interface{
   ServiceProviderIF
   Read(core.JWT, string, string, []byte, string)

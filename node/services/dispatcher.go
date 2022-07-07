@@ -20,7 +20,6 @@ type Dispatcher struct {
   core.ProtectedSeed
   Initialized bool
   Route core.Route
-  // RouterInst core.RouterIF
   StateProvider StateProviderIF
   RegistrarService core.RegistrarIF
 }
@@ -40,14 +39,13 @@ type Dispatcher struct {
 //   }
 // }
 
-
-// func (d *Dispatcher) Test() string{
 func (d *Dispatcher) Test(){
   d.parse_test_routes()
+  d.testState()
+  d.testRegistrar()
   fmt.Println("   DISPATCHER TEST: OK\n")
   // return "DISPATCHER TEST: OK"
 }
-
 
 func (d *Dispatcher) State() StateProviderIF{
   return d.StateProvider
@@ -105,7 +103,65 @@ func (d *Dispatcher) Connect(router core.RouterIF){
 //   return r.IAM()
 // }
 
+func (d *Dispatcher) testState(){
+  fmt.Println("  Running State Test Sequence")
 
+  iam := d.IAM()
+  sP := d.State()
+  fmt.Println(fmt.Sprintf(" Router:%s\n", iam))
+
+  consentString := iam.Provider.DIDSession()
+  jwt := core.JWT{Public:consentString}
+
+  fmt.Println("   Client: Running State Read Check With JWT\n")
+  sP.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
+
+  fmt.Println("   Client: Running State Write Check With JWT\n")
+  sP.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
+
+  fmt.Println("   Client: Running State Write Check With JWT\n")
+  sP.Write(jwt, "0x001", "hello_world", []byte{11,12,13,14}, "pong_world")
+
+  fmt.Println("   Client: Running State Read Check With JWT\n")
+  sP.Read(jwt, "0x001", "hello_world", []byte{111,112,113,114}, "ping_world")
+
+  fmt.Println("   Client: Running State Read Check With JWT\n")
+  sP.Read(jwt, "0x001", "hello_world", []byte{111,121,131,141}, "ping_world")
+}
+
+func (d *Dispatcher) testRegistrar(){
+  fmt.Println("  Running Registrar Test Sequence")
+
+  iam :=  d.IAM()
+  consentString := iam.Provider.DIDSession()
+  jwt := core.JWT{Public:consentString}
+  rP := d.Registrar()
+
+
+  fmt.Println("   Client: Running Registrar Named Contract Registration With JWT\n")
+  msg := rP.Register(jwt, "helloWorld.mcom", "0xS:0x001")
+  fmt.Println(fmt.Sprintf("   Named Contract Mapping Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Named Function Registration With JWT\n")
+  msg = rP.Register(jwt, "helloWorldExample.mcom", "0xS:0x001:hello_world")
+  fmt.Println(fmt.Sprintf("   Named Function Mapping Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Taken Name Registration With JWT\n")
+  msg = rP.Register(jwt, "helloWorldExample.mcom", "0xS:0x001:goodnight_world")
+  fmt.Println(fmt.Sprintf("   Named Function Mapping Response (should be blank): %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Named Contract Resolution With JWT\n")
+  msg = rP.Resolve(jwt, "helloWorld.mcom")
+  fmt.Println(fmt.Sprintf("   Named Contract FQMN Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Named Function Resolution With JWT\n")
+  msg = rP.Resolve(jwt, "helloWorldExample.mcom")
+  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
+
+  fmt.Println("   Client: Running Registrar Unregistered Name Resolution With JWT\n")
+  msg = rP.Resolve(jwt, "google.com")
+  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
+}
 
 func (d *Dispatcher) parse_test_routes(){
   iam := d.IAM()

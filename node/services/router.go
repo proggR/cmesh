@@ -88,7 +88,6 @@ func (r *Router) Route(service string, action string) string {
   return msg
 }
 
-
 /**
 * Example image of groups in assets/images/parsing_regex.png
 * Group 1: Target Service Opcode

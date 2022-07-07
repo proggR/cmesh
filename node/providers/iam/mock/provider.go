@@ -3,8 +3,6 @@ package providers
 import (
   "fmt"
   "hash/fnv"
-  // "node/iam"
-  //"vendor/cmesh/IRMAProvider"
 )
 // Interface type check code. Stashing for later
 // type T struct{}
@@ -193,7 +191,6 @@ func (p *IRMAProvider) DIDSessionHangup() {
 
 // INTERNAL SSI & DID FUNCTIONS
 
-
 func (p *IRMAProvider) rootSSIGen() string {
     if p.ssiAddress == ""{
       p.ssiAddress = "0xSSI:0"
@@ -202,7 +199,6 @@ func (p *IRMAProvider) rootSSIGen() string {
     }
     return p.ssiAddress
 }
-
 
 // END OF INTERNAL SSI & DID FUNCTIONS
 

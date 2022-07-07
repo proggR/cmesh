@@ -1,6 +1,5 @@
 package core
 import(
-  // "fmt"
 )
 
 type IAMIF interface {
@@ -24,9 +23,6 @@ func (ps *ProtectedSeed) Router() RouterIF{
   return ps.RouterInst
 }
 
-// type ServiceLayerIF interface {
-//
-// }
 
 type IRMAProviderIF interface {
     DIDGen() string
@@ -40,10 +36,6 @@ type IRMAProviderIF interface {
     TestProvider() string
 }
 
-// type RouterSeed struct{
-//   IAM IAM
-// }
-
 type RouterIF interface{
   ProtectedIF
   Identify(IAM)
@@ -56,36 +48,3 @@ type RouterIF interface{
   TestState()
   TestRegistrar()
 }
-//
-// type ServiceIF struct{
-//
-// }
-//
-// type ProviderIF struct{
-//
-// }
-//
-// type PortIF struct{
-//   In ServiceIF
-//   Out ServiceIF
-// }
-//
-// type ServiceServicePort struct{
-//   In ServiceIF
-//   Out ServiceIF
-// }
-//
-// type ProviderProviderPort struct{
-//   In ProviderIF
-//   Out ProviderIF
-// }
-//
-// type ServiceProviderPort struct{
-//   In ServiceIF
-//   Out ProviderIF
-// }
-//
-// type ProviderServicePort struct{
-//   In ProviderIF
-//   Out ServiceIF
-// }

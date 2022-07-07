@@ -6,29 +6,23 @@ import (
   services "node/services"
 )
 
-// func stahp(){
-//   state.Provider()
-// }
-
 type StateProvider struct {
   services.ServiceProviderSeed
   Initialized bool
   Blocks []services.Block
   service string
-  // IAM core.IAM
-  // Router core.RouterIF
+
 }
 
 func (s *StateProvider) Construct(router core.RouterIF) StateProvider {
   if !s.Initialized {
-      // s.RouterInst = router
+
       s.service = "0xS:"
       s.Connect(router)
       d := s.Dispatcher()
       d.SetState(s)
       s.Initialized = true
-      // b := state.Block{Hash:0,ExtraData: "Genesis Block"}
-      // s.Blocks = append(s.Blocks, b)
+
       s.WriteBlock("Genesis Block")
       fmt.Println("   GENESIS BLOCK GENERATED\n")
 
@@ -36,8 +30,8 @@ func (s *StateProvider) Construct(router core.RouterIF) StateProvider {
   return *s
 }
 
-func (s *StateProvider) Test() string {
-  return "STATE TEST: OK"
+func (s *StateProvider) Test() {
+  fmt.Println("STATE TEST")
 }
 
 func (s *StateProvider) TestRouterResolution(dispatcher services.Dispatcher) {

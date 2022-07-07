@@ -1,4 +1,7 @@
 # Operation SCREAMING CLEANHEX
+
+In running into walls and realizing the errors of my ways were from not applying DDD to the model, this doc is meant to keep referring back to as I hack and slash pieces apart. As I dive deeper into Go, I want to remember 3 words: Screaming CLEAN Hex 
+
 ## SCREAMING
 - Project hierarchy should scream domain level needs in your face at first glance
 
