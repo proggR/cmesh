@@ -80,6 +80,10 @@ func (r *Router) IAM() IAM{
   return r.iam
 }
 
+func (r *Router) Router() RouterIF{
+  return r
+}
+
 func (r *Router) Identify(iam IAM){
   r.iam = iam
 }
@@ -112,7 +116,7 @@ func (r *Router) ParseRoute(jwt JWT, fqmn string) Route{
   regex := *regexp.MustCompile(`^(0xS:|0xR:|0xI:)((.*)((0xS:|0xR:|0xI:)(.*))?((0xS:|0xR:|0xI:)(.*))?((0xS:|0xR:|0xI:)(.*))?)`)
   res := regex.FindAllStringSubmatch(fqmn, -1)
   if len(res) == 0 {
-    fmt.Println("NO MATCHES?")
+    fmt.Println("   NO MATCHES? If unexpected, investigate")
   }
   var rt Route = Route{FQMN: fqmn, ResponseCode: 400}
   for i := range res {

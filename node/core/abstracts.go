@@ -7,6 +7,23 @@ type IAMIF interface {
 
 }
 
+type ProtectedIF interface {
+  Router() RouterIF
+  IAM() IAM
+}
+
+type ProtectedSeed struct {
+  RouterInst RouterIF
+}
+
+func (ps *ProtectedSeed) IAM() IAM{
+  return ps.RouterInst.IAM()
+}
+
+func (ps *ProtectedSeed) Router() RouterIF{
+  return ps.RouterInst
+}
+
 // type ServiceLayerIF interface {
 //
 // }
@@ -28,8 +45,8 @@ type IRMAProviderIF interface {
 // }
 
 type RouterIF interface{
-  IAM() IAM
-  Identify(IAM) 
+  ProtectedIF
+  Identify(IAM)
   Route(string,string) string
   ParseRoute(JWT,string) Route
   Ping() string

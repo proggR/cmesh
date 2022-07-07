@@ -7,14 +7,14 @@ import(
 )
 
 type Registrar struct{
-  IAM IAM
-  Router RouterIF
+  // ProtectedSeed
   domainMappings map[string]string
 }
 
 type RegistrarIF interface{
-  Register(JWT,string,string)
-  Resolve(JWT,string)
+  ProtectedIF
+  Register(JWT,string,string) string
+  Resolve(JWT,string) string
 }
 
 

@@ -7,6 +7,7 @@ import (
   // providers "node/providers"
   iamProvider "node/providers/iam/mock"
   serviceProvider "node/providers/services"
+  registrarProvider "node/providers/registrar"
   stateProvider "node/providers/state/mock"
   // stateProvider "node/providers/state/mock"
   // iamService "node/iam"
@@ -16,10 +17,13 @@ import (
 )
 
 // var IAMService core.IAM
-var RouterService core.Router
 // var ServiceLayer serviceProvider.ServiceProvider
-var StateProvider stateProvider.StateProvider
 // var RegistrarService core.Registrar
+
+var RouterService core.Router
+var StateProvider stateProvider.StateProvider
+var RegistrarProvider registrarProvider.RegistrarProvider
+
 
 // IAM;
 //Router(IAM);
@@ -78,18 +82,39 @@ func main() {
     }
 
 
-    fmt.Println("Node Started. Initializing Services")
+    fmt.Println("\n\nRouter Services Started & Handshake Tested.\n")
+
+    fmt.Println(" Initializing Services")
     // initialize_protected_services()
 
-    stateP := state_bootstrap()
-    state := &stateP
-    fmt.Println("State Bootstrapped")
-    fmt.Println("Connecting Service Layer")
+    fmt.Println("   Connecting Service Layer\n")
     serp := serviceProvider.ServiceProvider{}
     router := &RouterService
-    ServiceLayer := serp.Connect(router, state)
-    fmt.Println("Service Layer Connected")
+    ServiceLayer := serp.Connect(router)
+    // state.Connect(router)
+    fmt.Println("   Service Layer Connected\n")
+
+    state_bootstrap()
+    // state := &stateP
+    fmt.Println("   State Bootstrapped\n")
+
+    registrar_bootstrap()
+    // state := &stateP
+    fmt.Println("   Registrar Bootstrapped\n")
+
+    fmt.Println("   Calling Service Layer Tests\n")
     ServiceLayer.Test()
+    fmt.Println("   Service Layer Tests Ran?...\n")
+
+    fmt.Println("   Running Dispatcher Tests\n")
+    dispatcher := ServiceLayer.Dispatcher()
+    dispatcher.Test()
+
+    fmt.Println("   Dispatcher Tests Completed\n")
+
+    fmt.Println(" Services Initialized\n\n")
+
+    fmt.Println("CMesh Node & Protected Services Initalized\n:)")
     // services.BootstrapServices(router)
     // parse_test_routes()
 }
@@ -131,11 +156,21 @@ func iam_bootstrap() core.IAM{
 }
 
 func state_bootstrap() stateProvider.StateProvider{
-  fmt.Println(" Initializing State Provider\n")
-  sp := stateProvider.StateProvider{} //RouterInst:router
-  sp = StateProvider.Construct(RouterService)
-  fmt.Println(" State Provider Loaded\n")
-  return sp
+  fmt.Println("   Initializing State Provider\n")
+  sp := &stateProvider.StateProvider{} //RouterInst:router
+  r := &RouterService
+  sP := sp.Construct(r)
+  fmt.Println("   State Provider Loaded\n")
+  return sP
+}
+
+func registrar_bootstrap() registrarProvider.RegistrarProvider{
+  fmt.Println("   Initializing Registrar Service\n")
+  reg := &registrarProvider.RegistrarProvider{}
+  r := &RouterService
+  rP := reg.Construct(r)
+  fmt.Println("   Registrar Service Loaded\n")
+  return rP
 }
 
 

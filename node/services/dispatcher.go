@@ -6,21 +6,69 @@ import(
 )
 
 type DispatcherIF interface {
+    core.ProtectedIF
     Dispatch()
     Connect(core.RouterIF)
-    Router()core.RouterIF
-    IAM()core.IAM
     Test()
+    State()StateProviderIF
+    SetState(StateProviderIF)
+    Registrar()core.RegistrarIF
+    SetRegistrar(core.RegistrarIF)
 }
 
 type Dispatcher struct {
+  core.ProtectedSeed
+  Initialized bool
   Route core.Route
-  RouterInst core.RouterIF
+  // RouterInst core.RouterIF
+  StateProvider StateProviderIF
+  RegistrarService core.RegistrarIF
 }
 
 
+// func (d *Dispatcher)Provider(provider ServiceProviderIF){
+//   if provider.Service() == "0xS:" {
+//     p := provider
+//     d.State(p)
+//   } else if provider.Service() == "0XR:" {
+//     // d.RegistrarService = provider
+//     fmt.Println("UPCOMING SERVICE, UNABLE TO DISPATCH TO REGISTRAR THIS WAY")
+//   } else if provider.Service() == "0XE:" {
+//     fmt.Println("UPCOMING SERVICE, UNABLE TO DISPATCH TO EVENTS")
+//   } else {
+//     fmt.Println(fmt.Sprintf("UNKNOWN SERVICE, UNABLE TO DISPATCH TO: %s\n",provider.Service()))
+//   }
+// }
+
+
+// func (d *Dispatcher) Test() string{
+func (d *Dispatcher) Test(){
+  d.parse_test_routes()
+  fmt.Println("   DISPATCHER TEST: OK\n")
+  // return "DISPATCHER TEST: OK"
+}
+
+
+func (d *Dispatcher) State() StateProviderIF{
+  return d.StateProvider
+}
+
+func (d *Dispatcher) Registrar() core.RegistrarIF{
+  return d.RegistrarService
+}
+func (d *Dispatcher) SetState(state StateProviderIF) {
+  d.StateProvider = state
+}
+
+func (d *Dispatcher) SetRegistrar(registrar core.RegistrarIF) {
+  d.RegistrarService = registrar
+}
+
 func (d *Dispatcher) Dispatch(){
   iam := d.IAM()
+  router := d.Router()
+  state := d.State()
+  registrar := d.Registrar()
   consentString := iam.Provider.DIDSession()
   jwt := core.JWT{Public:consentString}
 
@@ -32,14 +80,14 @@ func (d *Dispatcher) Dispatch(){
         function = s[1]
     }
     fmt.Println(fmt.Sprintf("   DISPATCHING TO STATE\n    CONTRACT: %s\n    FUNCTION: %s\n",contract,function))
-    StateProvider.Read(jwt,contract,function,[]byte{},"")
+    state.Read(jwt,contract,function,[]byte{},"")
   } else if d.Route.Service == "0xI:"{
     fmt.Println("   DISPATCHING TO IAM\n")
   } else if d.Route.Service == "0xR:"{
     fmt.Println("   DISPATCHING TO REGISTRAR\n")
-    fqmn := RegistrarService.Resolve(jwt, d.Route.ResourceString)
+    fqmn := registrar.Resolve(jwt, d.Route.ResourceString)
     fmt.Println(fmt.Sprintf("   RESOLVED FQMN: %s\n",fqmn))
-    d.Route = RouterService.ParseRoute(jwt,fqmn)
+    d.Route = router.ParseRoute(jwt,fqmn)
     d.Dispatch()
   }
 }
@@ -47,22 +95,21 @@ func (d *Dispatcher) Dispatch(){
 func (d *Dispatcher) Connect(router core.RouterIF){
   d.RouterInst = router
 }
+//
+// func (d *Dispatcher) Router() core.RouterIF{
+//   return d.RouterInst
+// }
+//
+// func (d *Dispatcher) IAM() core.IAM{
+//   r := d.Router()
+//   return r.IAM()
+// }
 
-func (d *Dispatcher) Router() core.RouterIF{
-  return d.RouterInst
-}
-
-func (d *Dispatcher) IAM() core.IAM{
-  return d.RouterInst.IAM()
-}
-
-func (d *Dispatcher) Test(){
-  d.parse_test_routes()
-}
 
 
 func (d *Dispatcher) parse_test_routes(){
   iam := d.IAM()
+  router := d.Router()
   consentString := iam.Provider.DIDSession()
   jwt := core.JWT{Public:consentString}
 
@@ -72,28 +119,28 @@ func (d *Dispatcher) parse_test_routes(){
   fqmn4 := "0xR:google.com"
 
   fmt.Println("   Client: Running Router Parse: STATE\n")
-  route := RouterService.ParseRoute(jwt, fqmn1)
+  route := router.ParseRoute(jwt, fqmn1)
   fmt.Println(fmt.Sprintf("   Router Response:\n    FQMN: %s\n    Service: %s\n    ResourceString: %s\n",route.FQMN,route.Service,route.ResourceString))
 
   d.Route = route
   d.Dispatch()
 
   fmt.Println("   Client: Running Router Parse: REGISTRAR CONTRACT\n")
-  route = RouterService.ParseRoute(jwt, fqmn2)
+  route = router.ParseRoute(jwt, fqmn2)
   fmt.Println(fmt.Sprintf("   Router Response:\n    FQMN: %s\n    Service: %s\n    ResourceString: %s\n",route.FQMN,route.Service,route.ResourceString))
 
   d.Route = route
   d.Dispatch()
 
   fmt.Println("   Client: Running Router Parse: REGISTRAR FUNCTION\n")
-  route = RouterService.ParseRoute(jwt, fqmn3)
+  route = router.ParseRoute(jwt, fqmn3)
   fmt.Println(fmt.Sprintf("   Router Response:\n    FQMN: %s\n    Service: %s\n    ResourceString: %s\n",route.FQMN,route.Service,route.ResourceString))
 
   d.Route = route
   d.Dispatch()
 
   fmt.Println("   Client: Running Router Parse: REGISTRAR UNREGISTERED DOMAIN\n")
-  route = RouterService.ParseRoute(jwt, fqmn4)
+  route = router.ParseRoute(jwt, fqmn4)
   fmt.Println(fmt.Sprintf("   Router Response:\n    FQMN: %s\n    Service: %s\n    ResourceString: %s\n",route.FQMN,route.Service,route.ResourceString))
 
   d.Route = route
