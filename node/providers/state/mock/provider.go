@@ -39,7 +39,7 @@ func (s *StateProvider) TestRouterResolution() {
   fmt.Println("\n\nTHE FINAL TEST\n   TESTING STATE PROVIDER ROUTING RESOLUTION\n")
   router := s.Router()
   iam := s.IAM()
-  route := router.ParseRoute(iam.Jwt,"0xR:helloWorld.mcom")
+  route := router.ParseRoute(iam.Jwt,core.Request{FQMN:"0xR:helloWorld.mcom"})
   fmt.Println(fmt.Sprintf("      Resource String Returned: %s\n      Dispatching Now\n",route.ResourceString))
   // dispatcher := s.Dispatcher()
   // dispatcher.SetRoute(route)

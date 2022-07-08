@@ -1,4 +1,6 @@
 .env
 .*Conf
-core/.state
-core/.state/*
+node/core/.state
+node/core/.state/*
+client/core/.state
+client/core/.state/*

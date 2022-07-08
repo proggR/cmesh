@@ -64,14 +64,15 @@ func (d *Dispatcher) SetRegistrar(registrar core.RegistrarIF) {
   d.RegistrarService = registrar
 }
 
-func (d *Dispatcher) Dispatch(){
+func (d *Dispatcher) Dispatch() core.Response{
+  fqmn := d.Route.FQMN
   iam := d.IAM()
   router := d.Router()
   state := d.State()
   registrar := d.Registrar()
   consentString := iam.Provider.DIDSession()
   jwt := core.JWT{Public:consentString}
-
+  rStr := ""
   if d.Route.Service == "0xS:"{
     s:= strings.Split(d.Route.ResourceString,":")
     contract := s[0]
@@ -81,15 +82,20 @@ func (d *Dispatcher) Dispatch(){
     }
     fmt.Println(fmt.Sprintf("   DISPATCHING TO STATE\n    CONTRACT: %s\n    FUNCTION: %s\n",contract,function))
     state.Read(jwt,contract,function,[]byte{},"")
+    rStr = fmt.Sprintf("0xS:R;%:%",contract,function)
   } else if d.Route.Service == "0xI:"{
     fmt.Println("   DISPATCHING TO IAM\n")
+    rStr = fmt.Sprintf("0xI;%","FUTURE")
   } else if d.Route.Service == "0xR:"{
     fmt.Println("   DISPATCHING TO REGISTRAR\n")
     fqmn := registrar.Resolve(jwt, d.Route.ResourceString)
     fmt.Println(fmt.Sprintf("   RESOLVED FQMN: %s\n",fqmn))
-    d.Route = router.ParseRoute(jwt,fqmn)
-    d.Dispatch()
+    r := core.Request{FQMN:fqmn}
+    d.Route = router.ParseRoute(jwt,r)
+    return d.Dispatch()
   }
+  res := core.Response{FQMN:fqmn,ResponseString:rStr}
+  return res
 }
 
 func (d *Dispatcher) Connect(router core.RouterIF){
@@ -170,10 +176,10 @@ func (d *Dispatcher) parse_test_routes(){
   consentString := iam.Provider.DIDSession()
   jwt := core.JWT{Public:consentString}
 
-  fqmn1 := "0xS:0x001:hello_world"
-  fqmn2 := "0xR:helloWorld.mcom"
-  fqmn3 := "0xR:helloWorldExample.mcom"
-  fqmn4 := "0xR:google.com"
+  fqmn1 := core.Request{FQMN:"0xS:0x001:hello_world"}
+  fqmn2 := core.Request{FQMN:"0xR:helloWorld.mcom"}
+  fqmn3 := core.Request{FQMN:"0xR:helloWorldExample.mcom"}
+  fqmn4 := core.Request{FQMN:"0xR:google.com"}
 
   fmt.Println("   Client: Running Router Parse: STATE\n")
   route := router.ParseRoute(jwt, fqmn1)

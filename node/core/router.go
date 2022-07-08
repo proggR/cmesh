@@ -103,10 +103,12 @@ func (res *Response) Body() ResponseBodyIF {
 // }
 
 // func (r *Router) Route(fqdn string) {
-func (r *Router) Route(service string, action string) string {
-  msg := fmt.Sprintf("Routing to %s @ %s",action,service)
+func (r *Router) Route(req Request) Response {
+  msg := fmt.Sprintf("Routing to %s",req.FQMN)
   fmt.Println(msg)
-  return msg
+
+  route := r.ParseRoute(r.iam.Jwt,req)
+  return r.Dispatch(route)
 }
 
 func (r *Router) IAM() IAM{
@@ -134,10 +136,10 @@ func (r *Router) Attach(dispatcher DispatcherIF){
   r.dispatcher.Init()
 }
 
-func (r *Router) Dispatch(route Route){
+func (r *Router) Dispatch(route Route) Response{
   d := r.dispatcher
   d.SetRoute(route)
-  d.Dispatch()
+  return d.Dispatch()
 }
 
 func (r *Router) SetState(state StateProviderIF){
@@ -169,7 +171,8 @@ func (r *Router) SetRegistrar(registrar RegistrarIF){
 * Else If Group 4 ! empty: process first
 * Else use Group 3 as address string
 */
-func (r *Router) ParseRoute(jwt JWT, fqmn string) Route{
+func (r *Router) ParseRoute(jwt JWT, req Request) Route{
+  fqmn := req.FQMN
   /**
   * /^(0xS:|0xR:|0xI:)((.*)((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*))((0xS:|0xR:|0xI:)(.*)))/
   */

@@ -2,15 +2,14 @@ package main
 import (
   "fmt"
   core "node/core"
-  // providers "node/providers"
   iamProvider "node/providers/iam/mock"
-  // serviceProvider "node/providers/services"
+
   registrarProvider "node/providers/registrar"
   stateProvider "node/providers/state/mock"
-
 )
 
 var RouterService core.Router
+
 var StateProvider stateProvider.StateProvider
 var RegistrarProvider registrarProvider.RegistrarProvider
 // var ServiceLayer serviceProvider.ServiceProvider
@@ -29,13 +28,6 @@ func main() {
 
     fmt.Println(" Initializing Protected Services")
 
-    // fmt.Println("   Connecting Service Layer To Router & Dispatcher\n")
-    // serp := serviceProvider.ServiceProvider{}
-    // router := &RouterService
-    // serp.Connect(router)
-    //
-    // fmt.Println("   Service Layer Connected\n")
-
     state := state_bootstrap()
 
     registrar_bootstrap()
@@ -46,6 +38,16 @@ func main() {
     RouterService.DispatcherTest()
 
     fmt.Println("   Dispatcher Tests Completed\n")
+
+
+    fmt.Println("   Route/Response Tests\n")
+    // dispatcher := ServiceLayer.DispatcherTest()
+    // dispatcher.Test()
+    res := RouterService.Route(core.Request{FQMN:"0xR:helloWorldExample.mcom"})
+    str := res.String()
+    fmt.Println(fmt.Sprintf("  Route/Response Test Results:\n   String: %s\n",str))
+
+    fmt.Println("   Route/Response Tests Complete \n")
 
     state.TestRouterResolution()
 

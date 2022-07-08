@@ -65,11 +65,11 @@ type IRMAProviderIF interface {
 type RouterIF interface{
   ProtectedIF
   Identify(IAM)
-  Route(string,string) string
-  ParseRoute(JWT,string) Route
+  Route(Request) Response
+  ParseRoute(JWT,Request) Route
   HasDispatcher() bool
   Attach(DispatcherIF)
-  Dispatch(Route)
+  Dispatch(Route) Response
   SetState(StateProviderIF)
   SetRegistrar(RegistrarIF)
   Ping() string
@@ -85,7 +85,7 @@ type DispatcherIF interface {
     ProtectedIF
     IsInitialized() bool
     Init()
-    Dispatch()
+    Dispatch() Response
     Connect(RouterIF)
     Test()
     State()StateProviderIF
