@@ -1,18 +1,11 @@
 package services
 import (
   "fmt"
-  core "node/core"
+  // core "node/core"
 )
 
 func Provider() {
     fmt.Println("Distributed State Provider Loaded")
-}
-
-type StateProviderIF interface{
-  ServiceProviderIF
-  Read(core.JWT, string, string, []byte, string)
-  Write(core.JWT, string, string, []byte, string)
-  TestRouterResolution()
 }
 
 type StateServiceIF interface{

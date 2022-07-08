@@ -44,10 +44,23 @@ import(
 // */
 //
 
+type Request struct {
+  FQMN string
+  Jwt JWT
+}
+
+type Response struct {
+  FQMN string
+  ResolvedFQMN string
+  ResponseString string
+  ResponseJSON JSONIF
+  ResponseBody ResponseBodyIF
+  ResponseCode int
+}
+
 type Router struct {
   iam IAM
-  // Registrar registrarService.Registrar
-  // State stateProvider.StateProvider
+  dispatcher DispatcherIF
   RouterDID string
   OperatorDID string
   RegistrarTx uint32
@@ -61,6 +74,26 @@ type Route struct {
   Action string
   ResourceString string
   ResponseCode int
+}
+
+func (req *Request) Identify(jwt JWT){
+  req.Jwt = jwt
+}
+
+func (req *Request) JWT() JWT {
+  return req.Jwt
+}
+
+func (res *Response) String() string {
+  return res.ResponseString
+}
+
+func (res *Response) JSON() JSONIF {
+  return res.ResponseJSON
+}
+
+func (res *Response) Body() ResponseBodyIF {
+  return res.ResponseBody
 }
 
 // func (r *Router) InitializeServices(){
@@ -86,6 +119,25 @@ func (r *Router) Router() RouterIF{
 
 func (r *Router) Identify(iam IAM){
   r.iam = iam
+}
+
+func (r *Router) Dispatcher() DispatcherIF{
+  return r.dispatcher
+}
+
+func (r *Router) HasDispatcher() bool{
+  return r.dispatcher != nil && r.dispatcher.IsInitialized()
+}
+
+func (r *Router) Attach(dispatcher DispatcherIF){
+  r.dispatcher = dispatcher
+  r.dispatcher.Init()
+}
+
+func (r *Router) Dispatch(route Route){
+  d := r.dispatcher
+  d.SetRoute(route)
+  d.Dispatch()
 }
 
 /**

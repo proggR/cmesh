@@ -5,23 +5,11 @@ import(
   core "node/core"
 )
 
-type DispatcherIF interface {
-    core.ProtectedIF
-    Dispatch()
-    Connect(core.RouterIF)
-    Test()
-    State()StateProviderIF
-    SetRoute(core.Route)
-    SetState(StateProviderIF)
-    Registrar()core.RegistrarIF
-    SetRegistrar(core.RegistrarIF)
-}
-
 type Dispatcher struct {
   core.ProtectedSeed
   Initialized bool
   Route core.Route
-  StateProvider StateProviderIF
+  StateProvider core.StateProviderIF
   RegistrarService core.RegistrarIF
 }
 
@@ -41,14 +29,22 @@ type Dispatcher struct {
 // }
 
 func (d *Dispatcher) Test(){
-  d.parse_test_routes()
   d.testState()
   d.testRegistrar()
+  d.parse_test_routes()
   fmt.Println("   DISPATCHER TEST: OK\n")
   // return "DISPATCHER TEST: OK"
 }
 
-func (d *Dispatcher) State() StateProviderIF{
+func (d *Dispatcher) IsInitialized() bool{
+  return d.Initialized
+}
+
+func (d *Dispatcher) Init(){
+  d.Initialized = true
+}
+
+func (d *Dispatcher) State() core.StateProviderIF{
   return d.StateProvider
 }
 
@@ -60,7 +56,7 @@ func (d *Dispatcher) SetRoute(route core.Route) {
   d.Route = route
 }
 
-func (d *Dispatcher) SetState(state StateProviderIF) {
+func (d *Dispatcher) SetState(state core.StateProviderIF) {
   d.StateProvider = state
 }
 
@@ -114,7 +110,6 @@ func (d *Dispatcher) testState(){
 
   iam := d.IAM()
   sP := d.State()
-  fmt.Println(fmt.Sprintf(" Router:%s\n", iam))
 
   consentString := iam.Provider.DIDSession()
   jwt := core.JWT{Public:consentString}

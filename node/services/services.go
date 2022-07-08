@@ -6,28 +6,19 @@ import(
 )
 
 var RouterService core.RouterIF
-var StateProvider StateProviderIF
+var StateProvider core.StateProviderIF
 var RegistrarService core.Registrar
 var DispatcherService Dispatcher
 
-type ServiceProviderIF interface {
-  core.ProtectedIF
-  Connect(core.RouterIF) ServiceProviderIF
-  Attach(DispatcherIF)
-  Test()
-  Service() string
-  Dispatcher() DispatcherIF
-}
-
 type ServiceProviderSeed struct {
   core.ProtectedSeed
-  DispatcherInst DispatcherIF
-  Provider ServiceProviderIF
+  DispatcherInst core.DispatcherIF
+  Provider core.ServiceProviderIF
   service string
 }
 
-func (sp *ServiceProviderSeed) Dispatcher() DispatcherIF {
-  return sp.DispatcherInst
+func (sp *ServiceProviderSeed) Dispatcher() core.DispatcherIF {
+  return sp.RouterInst.Dispatcher()
 }
 
 func (sp *ServiceProviderSeed) Service() string {
@@ -38,16 +29,17 @@ func (sp *ServiceProviderSeed) Test() {
   fmt.Println("SEED TEST")
 }
 
-func (sp *ServiceProviderSeed) Attach(dispatcher DispatcherIF) {
+func (sp *ServiceProviderSeed) Attach(dispatcher core.DispatcherIF) {
   sp.DispatcherInst = dispatcher
 }
 
-func (sp *ServiceProviderSeed) Connect(router core.RouterIF) ServiceProviderIF{
-  if !DispatcherService.Initialized  {
+func (sp *ServiceProviderSeed) Connect(router core.RouterIF) core.ServiceProviderIF{
+  r := router
+  if !r.HasDispatcher()  {
       fmt.Println("    Initializing Dispatcher Service\n")
-      DispatcherService = Dispatcher{Initialized:true}
-      r := router
-      DispatcherService.Connect(r)
+      d := &Dispatcher{Initialized:true}
+      d.Connect(r)
+      r.Attach(d)
       fmt.Println("    Dispatcher Service Initialized And Connected To Router\n")
   }
 
