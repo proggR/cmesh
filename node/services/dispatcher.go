@@ -83,7 +83,7 @@ func (d *Dispatcher) Dispatch() core.Response{
   consentString := iam.Provider.DIDSession()
   jwt := core.JWT{Public:consentString}
   rStr := ""
-  if d.Route.Service == "0xS:"{
+  if d.Route.Service == "0xS:" || d.Route.Service == "0xSW:"{
     s:= strings.Split(d.Route.ResourceString,":")
     contract := s[0]
     function := ""
@@ -91,9 +91,14 @@ func (d *Dispatcher) Dispatch() core.Response{
         function = s[1]
     }
     fmt.Println(fmt.Sprintf("   DISPATCHING TO STATE\n    CONTRACT: %s\n    FUNCTION: %s\n",contract,function))
-    state.Read(jwt,contract,function,[]byte{},"")
-    rStr = fmt.Sprintf("0xS:R;%:%",contract,function)
-  } else if d.Route.Service == "0xE:"{
+    if d.Route.Service == "0xS:" {
+      state.Read(jwt,contract,function,[]byte{},"")
+      rStr = fmt.Sprintf("0xS:R;%:%",contract,function)
+    }else {
+      state.Write(jwt,contract,function,[]byte{},"")
+      rStr = fmt.Sprintf("0xS:W;%:%",contract,function)
+    }
+  } else if d.Route.Service == "0xE:" || d.Route.Service == "0xEW:" {
     s:= strings.Split(d.Route.ResourceString,":")
     channel := s[0]
     payload := ""
@@ -101,8 +106,13 @@ func (d *Dispatcher) Dispatch() core.Response{
         payload = s[1]
     }
     fmt.Println(fmt.Sprintf("   DISPATCHING TO EVENTS\n    CHANNEL: %s\n    PAYLOAD: %s\n",channel,payload))
-    events.Read(jwt,channel,payload)
-    rStr = fmt.Sprintf("0xE:R;%:%",channel,payload)
+    if d.Route.Service == "0xE:" {
+      events.Read(jwt,channel,payload)
+      rStr = fmt.Sprintf("0xE:R;%:%",channel,payload)
+    } else{
+      events.Write(jwt,channel,payload)
+      rStr = fmt.Sprintf("0xE:W;%:%",channel,payload)
+    }
   } else if d.Route.Service == "0xI:"{
     fmt.Println("   DISPATCHING TO IAM\n")
     rStr = fmt.Sprintf("0xI;%","FUTURE")
@@ -113,6 +123,13 @@ func (d *Dispatcher) Dispatch() core.Response{
     r := core.Request{FQMN:fqmn}
     d.Route = router.ParseRoute(jwt,r)
     return d.Dispatch()
+  } else if d.Route.Service == "0xRW:"{
+    fmt.Println("   DISPATCHING TO REGISTRAR REGISTER\n")
+    // fqmn := registrar.Resolve(jwt, d.Route.ResourceString)
+    // fmt.Println(fmt.Sprintf("   RESOLVED FQMN: %s\n",fqmn))
+    // r := core.Request{FQMN:fqmn}
+    // d.Route = router.ParseRoute(jwt,r)
+    // return d.Dispatch()
   }
 
   res := core.Response{FQMN:fqmn,ResponseString:rStr}

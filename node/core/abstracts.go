@@ -14,6 +14,10 @@ type JSON struct{
 
 }
 
+type MinerIF interface{
+
+}
+
 type RequestIF interface {
   Identify(JWT)
   JWT() JWT
@@ -81,7 +85,6 @@ type RouterIF interface{
   TestRegistrar()
 }
 
-
 type DispatcherIF interface {
     ProtectedIF
     IsInitialized() bool
@@ -97,7 +100,6 @@ type DispatcherIF interface {
     Events() EventsIF
     SetEvents(EventsIF)
 }
-
 
 type ServiceProviderIF interface {
   ProtectedIF

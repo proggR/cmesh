@@ -7,6 +7,7 @@ import (
   registrarProvider "node/providers/registrar"
   stateProvider "node/providers/state/mock"
   eventsProvider "node/providers/events/mock"
+  minerProvider "node/miners"
 )
 
 var RouterService core.Router
@@ -35,16 +36,13 @@ func main() {
     events_bootstrap()
 
     fmt.Println("   Running Dispatcher Tests\n")
-    // dispatcher := ServiceLayer.DispatcherTest()
-    // dispatcher.Test()
+
     RouterService.DispatcherTest()
 
     fmt.Println("   Dispatcher Tests Completed\n")
 
-
     fmt.Println("   Route/Response Tests\n")
-    // dispatcher := ServiceLayer.DispatcherTest()
-    // dispatcher.Test()
+
     res := RouterService.Route(core.Request{FQMN:"0xR:helloWorldExample.mcom"})
     str := res.String()
     fmt.Println(fmt.Sprintf("  Route/Response Test Results:\n   String: %s\n",str))
@@ -56,6 +54,8 @@ func main() {
     fmt.Println(" Services Initialized\n\n")
 
     fmt.Println("CMesh Node & Protected Services Initalized\n:)")
+
+    miner_bootstrap()
 }
 
 func iam_bootstrap() core.IAM{
@@ -65,9 +65,18 @@ func iam_bootstrap() core.IAM{
     return iam.IAMService(iamp)
 }
 
+func miner_bootstrap(){
+  fmt.Println("Initializing CMesh Miner\n")
+  miner := minerProvider.EventsMiner{}
+  r := &RouterService
+  miner.Connect(r)
+  miner.Start()
+  fmt.Println("CMesh Miner Initialized\n:)")
+}
+
 func state_bootstrap() stateProvider.StateProvider{
   fmt.Println("   Initializing State Provider\n")
-  sp := &stateProvider.StateProvider{} //RouterInst:router
+  sp := &stateProvider.StateProvider{}
   r := &RouterService
   sP := sp.Construct(r)
   fmt.Println("   State Provider Loaded, Connected To Router & Dispatcher\n")
@@ -77,7 +86,7 @@ func state_bootstrap() stateProvider.StateProvider{
 
 func events_bootstrap() eventsProvider.EventsProvider{
   fmt.Println("   Initializing Event Provider\n")
-  ep := &eventsProvider.EventsProvider{} //RouterInst:router
+  ep := &eventsProvider.EventsProvider{}
   r := &RouterService
   eP := ep.Construct(r)
   fmt.Println("   Event Provider Loaded, Connected To Router & Dispatcher\n")

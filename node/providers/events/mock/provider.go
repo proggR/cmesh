@@ -7,7 +7,6 @@ import(
 )
 
 type EventsProvider struct{
-  // core.EventsIF
   services.ServiceProviderSeed
   Initialized bool
   service string
