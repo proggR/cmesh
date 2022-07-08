@@ -4,7 +4,7 @@ import (
   core "node/core"
   // providers "node/providers"
   iamProvider "node/providers/iam/mock"
-  serviceProvider "node/providers/services"
+  // serviceProvider "node/providers/services"
   registrarProvider "node/providers/registrar"
   stateProvider "node/providers/state/mock"
 
@@ -29,20 +29,21 @@ func main() {
 
     fmt.Println(" Initializing Protected Services")
 
-    fmt.Println("   Connecting Service Layer To Router & Dispatcher\n")
-    serp := serviceProvider.ServiceProvider{}
-    router := &RouterService
-    ServiceLayer := serp.Connect(router)
-
-    fmt.Println("   Service Layer Connected\n")
+    // fmt.Println("   Connecting Service Layer To Router & Dispatcher\n")
+    // serp := serviceProvider.ServiceProvider{}
+    // router := &RouterService
+    // serp.Connect(router)
+    //
+    // fmt.Println("   Service Layer Connected\n")
 
     state := state_bootstrap()
 
     registrar_bootstrap()
 
     fmt.Println("   Running Dispatcher Tests\n")
-    dispatcher := ServiceLayer.Dispatcher()
-    dispatcher.Test()
+    // dispatcher := ServiceLayer.DispatcherTest()
+    // dispatcher.Test()
+    RouterService.DispatcherTest()
 
     fmt.Println("   Dispatcher Tests Completed\n")
 

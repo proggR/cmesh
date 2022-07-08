@@ -24,8 +24,8 @@ func (r *RegistrarProvider) Construct(router core.RouterIF) RegistrarProvider {
       r.service = "0xR:"
       r.Init()
       r.Connect(router)
-      d := r.Dispatcher()
-      d.SetRegistrar(r)
+      ro := router
+      ro.SetRegistrar(r)
       r.Initialized = true
   }
   return *r

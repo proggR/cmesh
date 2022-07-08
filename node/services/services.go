@@ -17,10 +17,6 @@ type ServiceProviderSeed struct {
   service string
 }
 
-func (sp *ServiceProviderSeed) Dispatcher() core.DispatcherIF {
-  return sp.RouterInst.Dispatcher()
-}
-
 func (sp *ServiceProviderSeed) Service() string {
   return sp.service
 }

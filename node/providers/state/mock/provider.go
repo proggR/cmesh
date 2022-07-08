@@ -19,8 +19,8 @@ func (s *StateProvider) Construct(router core.RouterIF) StateProvider {
 
       s.service = "0xS:"
       s.Connect(router)
-      d := s.Dispatcher()
-      d.SetState(s)
+      r := router
+      r.SetState(s)
       s.Initialized = true
 
       s.WriteBlock("Genesis Block")

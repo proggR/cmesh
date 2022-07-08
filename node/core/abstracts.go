@@ -67,10 +67,11 @@ type RouterIF interface{
   Identify(IAM)
   Route(string,string) string
   ParseRoute(JWT,string) Route
-  Dispatcher() DispatcherIF
   HasDispatcher() bool
   Attach(DispatcherIF)
   Dispatch(Route)
+  SetState(StateProviderIF)
+  SetRegistrar(RegistrarIF)
   Ping() string
   Session() string
   Handshake(bool) string
@@ -101,7 +102,6 @@ type ServiceProviderIF interface {
   Attach(DispatcherIF)
   Test()
   Service() string
-  Dispatcher() DispatcherIF
 }
 
 type StateProviderIF interface{

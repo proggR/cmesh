@@ -140,6 +140,16 @@ func (r *Router) Dispatch(route Route){
   d.Dispatch()
 }
 
+func (r *Router) SetState(state StateProviderIF){
+  d := r.dispatcher
+  d.SetState(state)
+}
+
+func (r *Router) SetRegistrar(registrar RegistrarIF){
+  d := r.dispatcher
+  d.SetRegistrar(registrar)
+}
+
 /**
 * Example image of groups in assets/images/parsing_regex.png
 * Group 1: Target Service Opcode
@@ -197,6 +207,10 @@ func (r *Router) Session() string {
 func (r *Router) Handshake(disconnectAfter bool) string {
     iam := r.iam
     return iam.TestHandshake()
+}
+
+func (r *Router) DispatcherTest() {
+    r.dispatcher.Test()
 }
 
 func (r *Router) TestIAMProvider() string {
