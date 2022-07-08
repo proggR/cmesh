@@ -14,7 +14,6 @@ type RegistrarIF interface{
   Resolve(JWT,string) string
 }
 
-
 func (r *Registrar) Init() Registrar{
   r.domainMappings = map[string]string{}
   return *r
@@ -29,7 +28,6 @@ func (r *Registrar) Register(jwt JWT, domain string, fqmn string) string{
   r.domainMappings[domain] = fqmn
   return fmt.Sprintf("%s=>%s",domain,fqmn)
 }
-
 
 func (r *Registrar) Resolve(jwt JWT, domain string) string{
   fmt.Println(fmt.Sprintf("    Resolving Domain: %s\n",domain))

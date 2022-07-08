@@ -6,8 +6,6 @@ import(
   services "node/services"
 )
 
-
-
 type RegistrarProvider struct{
   core.Registrar
   services.ServiceProviderSeed

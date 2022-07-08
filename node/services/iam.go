@@ -1,6 +1,5 @@
 package services
 
-
 type Condition struct {
 
 }

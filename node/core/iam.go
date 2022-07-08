@@ -4,7 +4,6 @@ import (
   "hash/fnv"
 )
 
-
 var ssiKey string = "i am the walrus"
 var invalidKey string = "i am one of the walruses"
 
@@ -21,12 +20,10 @@ type IAM struct {
   PersonalJwts []JWT
 }
 
-
 type JWT struct {
   Public string
   private string
 }
-
 
 func (i *IAM) IAMService(iamp IRMAProviderIF) IAM {
   // iamp := &iamProvider.IRMAProvider{}

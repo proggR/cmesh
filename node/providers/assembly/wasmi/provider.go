@@ -1,14 +1,5 @@
 package providers
 
 import (
-  "fmt"
-  "node/assembly"
-  // "hash/fnv"
-  // "node/state"
-  // "node/iam"
-  //"vendor/cmesh/IRMAProvider"
+  // "fmt"
 )
-
-func stahp(){
-  assembly.Provider()
-}

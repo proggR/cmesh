@@ -4,6 +4,7 @@ import (
   "fmt"
   "hash/fnv"
 )
+
 // Interface type check code. Stashing for later
 // type T struct{}
 // var _ I = T{}       // Verify that T implements I.
