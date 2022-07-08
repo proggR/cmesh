@@ -119,6 +119,6 @@ type StateIF interface{
 
 type EventsIF interface{
   ServiceProviderIF
-  Read(JWT, string, string)
+  Read(JWT, string, string) string
   Write(JWT, string, string)
 }

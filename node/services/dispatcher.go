@@ -107,8 +107,7 @@ func (d *Dispatcher) Dispatch() core.Response{
     }
     fmt.Println(fmt.Sprintf("   DISPATCHING TO EVENTS\n    CHANNEL: %s\n    PAYLOAD: %s\n",channel,payload))
     if d.Route.Service == "0xE:" {
-      events.Read(jwt,channel,payload)
-      rStr = fmt.Sprintf("0xE:R;%:%",channel,payload)
+      rStr = events.Read(jwt,channel,payload) //fmt.Sprintf("0xE:R;%:%",channel,payload)
     } else{
       events.Write(jwt,channel,payload)
       rStr = fmt.Sprintf("0xE:W;%:%",channel,payload)
@@ -117,14 +116,14 @@ func (d *Dispatcher) Dispatch() core.Response{
     fmt.Println("   DISPATCHING TO IAM\n")
     rStr = fmt.Sprintf("0xI;%","FUTURE")
   } else if d.Route.Service == "0xR:"{
-    fmt.Println("   DISPATCHING TO REGISTRAR\n")
+    fmt.Println("   DISPATCHING TO REGISTRAR READ\n")
     fqmn := registrar.Resolve(jwt, d.Route.ResourceString)
     fmt.Println(fmt.Sprintf("   RESOLVED FQMN: %s\n",fqmn))
     r := core.Request{FQMN:fqmn}
     d.Route = router.ParseRoute(jwt,r)
     return d.Dispatch()
   } else if d.Route.Service == "0xRW:"{
-    fmt.Println("   DISPATCHING TO REGISTRAR REGISTER\n")
+    fmt.Println("   DISPATCHING TO REGISTRAR REGISTER WRITE\n")
     // fqmn := registrar.Resolve(jwt, d.Route.ResourceString)
     // fmt.Println(fmt.Sprintf("   RESOLVED FQMN: %s\n",fqmn))
     // r := core.Request{FQMN:fqmn}

@@ -2,6 +2,7 @@ package miners
 
 import(
   "fmt"
+  "hash/fnv"
   core "node/core"
   services "node/services"
 )
@@ -29,6 +30,16 @@ func (e *EventsMiner) forward(fqmn string) core.Response{
   router := e.Router()
   res := router.Route(core.Request{FQMN:fqmn})
   str := res.String()
-  router.Route(core.Request{FQMN:fmt.Sprintf("0xEW:events.mined:%s",str)})
+  router.Route(core.Request{FQMN:fmt.Sprintf("0xEW:events.mined:%d.%d",e.hash(fqmn),e.hash(str))})
   return res
 }
+
+// UTILITY FUNCTIONS
+
+func (e *EventsMiner) hash(s string) uint32 {
+    h := fnv.New32a()
+    h.Write([]byte(s))
+    return h.Sum32()
+}
+
+// END OF UTILITY FUNCTIONS

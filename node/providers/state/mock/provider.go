@@ -112,7 +112,7 @@ func (s *StateProvider) Read(iamSession core.JWT, address string, function strin
     fmt.Println(fmt.Sprintf("   Session public:%s",iamSession.Public))
     iam := s.IAM()
     if !iam.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "read") {
-      msg := fmt.Sprintf("   Read permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
+      msg := fmt.Sprintf("   State Read permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return
     }
@@ -124,7 +124,7 @@ func (s *StateProvider) Read(iamSession core.JWT, address string, function strin
 func (s *StateProvider) Write(iamSession core.JWT, address string, function string, args []byte, callbackFunction string){
     iam := s.IAM()
     if !iam.ValidatePermissions(iamSession, "state", "mock", fmt.Sprintf("%s:%s", address, function), "write") {
-      msg := fmt.Sprintf("   Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
+      msg := fmt.Sprintf("   State Write permissions for %s:%s denied for JWT %s",address,function,iamSession.Public)
       fmt.Println(msg)
       return
     }

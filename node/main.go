@@ -10,40 +10,35 @@ import (
   minerProvider "node/miners"
 )
 
-var RouterService core.Router
-
-var StateProvider stateProvider.StateProvider
-var RegistrarProvider registrarProvider.RegistrarProvider
-// var ServiceLayer serviceProvider.ServiceProvider
+var MinerService core.MinerIF
 
 func main() {
     fmt.Println("Node Starting...")
     iam := iam_bootstrap()
 
     fmt.Println("Starting Router Service")
-    RouterService = core.Router{}
-    RouterService.Identify(iam)
+    router := core.Router{}
+    router.Identify(iam)
 
-    network_test()
+    network_test(router)
 
     fmt.Println("\n\nRouter Services Started & Handshake Tested.\n")
 
-    fmt.Println(" Initializing Protected Services")
+    fmt.Println(" Initializing Protected Services\n")
 
-    state := state_bootstrap()
-
-    registrar_bootstrap()
-    events_bootstrap()
+    state, router := state_bootstrap(router)
+    _, router = registrar_bootstrap(router)
+    _, router = events_bootstrap(router)
 
     fmt.Println("   Running Dispatcher Tests\n")
 
-    RouterService.DispatcherTest()
+    router.DispatcherTest()
 
     fmt.Println("   Dispatcher Tests Completed\n")
 
     fmt.Println("   Route/Response Tests\n")
 
-    res := RouterService.Route(core.Request{FQMN:"0xR:helloWorldExample.mcom"})
+    res := router.Route(core.Request{FQMN:"0xR:helloWorldExample.mcom"})
     str := res.String()
     fmt.Println(fmt.Sprintf("  Route/Response Test Results:\n   String: %s\n",str))
 
@@ -55,7 +50,7 @@ func main() {
 
     fmt.Println("CMesh Node & Protected Services Initalized\n:)")
 
-    miner_bootstrap()
+    miner_bootstrap(router)
 }
 
 func iam_bootstrap() core.IAM{
@@ -65,49 +60,49 @@ func iam_bootstrap() core.IAM{
     return iam.IAMService(iamp)
 }
 
-func miner_bootstrap(){
+func miner_bootstrap(router core.Router){
   fmt.Println("Initializing CMesh Miner\n")
-  miner := minerProvider.EventsMiner{}
-  r := &RouterService
-  miner.Connect(r)
-  miner.Start()
+  MinerService := minerProvider.EventsMiner{}
+  r := &router
+  MinerService.Connect(r)
+  MinerService.Start()
   fmt.Println("CMesh Miner Initialized\n:)")
 }
 
-func state_bootstrap() stateProvider.StateProvider{
+func state_bootstrap(router core.Router) (stateProvider.StateProvider, core.Router){
   fmt.Println("   Initializing State Provider\n")
   sp := &stateProvider.StateProvider{}
-  r := &RouterService
+  r := &router
   sP := sp.Construct(r)
   fmt.Println("   State Provider Loaded, Connected To Router & Dispatcher\n")
   fmt.Println("   State Bootstrapped\n")
-  return sP
+  return sP, router
 }
 
-func events_bootstrap() eventsProvider.EventsProvider{
+func events_bootstrap(router core.Router) (eventsProvider.EventsProvider, core.Router){
   fmt.Println("   Initializing Event Provider\n")
   ep := &eventsProvider.EventsProvider{}
-  r := &RouterService
+  r := &router
   eP := ep.Construct(r)
   fmt.Println("   Event Provider Loaded, Connected To Router & Dispatcher\n")
   fmt.Println("   Events Bootstrapped\n")
-  return eP
+  return eP, router
 }
 
-func registrar_bootstrap() registrarProvider.RegistrarProvider{
+func registrar_bootstrap(router core.Router) (registrarProvider.RegistrarProvider, core.Router){
   fmt.Println("   Initializing Registrar Service\n")
   reg := &registrarProvider.RegistrarProvider{}
-  r := &RouterService
+  r := &router
   rP := reg.Construct(r)
   fmt.Println("   Registrar Service Loaded, Connected To Router & Dispatcher\n")
   fmt.Println("   Registrar Bootstrapped\n")
-  return rP
+  return rP, router
 }
 
-func network_test(){
+func network_test(router core.Router){
   expectedPingbackString := "blah"
   fmt.Println("\nRouter Service Initialized\n Starting Pingback Test")
-  msg := RouterService.Ping()
+  msg := router.Ping()
   fmt.Println(fmt.Sprintf("  Pingback test results:\n   Expecting: %s\n   Have: %s\n",expectedPingbackString, msg))
 
   if(msg != expectedPingbackString){
@@ -116,7 +111,7 @@ func network_test(){
   }
 
   fmt.Println(" Starting Router IAM Provider Test")
-  msg = RouterService.TestIAMProvider()
+  msg = router.TestIAMProvider()
   if(msg == ""){
     fmt.Println("Router IAM Provider Test Failed. Check Router config and try again.")
     return
@@ -125,7 +120,7 @@ func network_test(){
   }
 
   fmt.Println(" Starting Router IAM Session Test")
-  msg = RouterService.Session()
+  msg = router.Session()
   fmt.Println(fmt.Sprintf("   Router IAM Session Test results:\n    Response: %s\n", msg))
   if(msg == ""){
     fmt.Println("Router IAM Session Test Failed. Check Router config and try again.")
@@ -135,7 +130,7 @@ func network_test(){
   }
 
   fmt.Println(" Starting Router IAM Handshake Test")
-  msg = RouterService.Handshake(false)
+  msg = router.Handshake(false)
   fmt.Println(fmt.Sprintf("\n   Router IAM Handshake Test results:\n    Response: %s\n", msg))
   if(msg == ""){
     fmt.Println(" Router IAM Handshake Test Failed. Check Router config and try again.")
