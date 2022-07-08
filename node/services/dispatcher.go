@@ -9,8 +9,9 @@ type Dispatcher struct {
   core.ProtectedSeed
   Initialized bool
   Route core.Route
-  StateProvider core.StateProviderIF
+  StateProvider core.StateIF
   RegistrarService core.RegistrarIF
+  EventsService core.EventsIF
 }
 
 
@@ -44,7 +45,7 @@ func (d *Dispatcher) Init(){
   d.Initialized = true
 }
 
-func (d *Dispatcher) State() core.StateProviderIF{
+func (d *Dispatcher) State() core.StateIF{
   return d.StateProvider
 }
 
@@ -52,11 +53,15 @@ func (d *Dispatcher) Registrar() core.RegistrarIF{
   return d.RegistrarService
 }
 
+func (d *Dispatcher) Events() core.EventsIF{
+  return d.EventsService
+}
+
 func (d *Dispatcher) SetRoute(route core.Route) {
   d.Route = route
 }
 
-func (d *Dispatcher) SetState(state core.StateProviderIF) {
+func (d *Dispatcher) SetState(state core.StateIF) {
   d.StateProvider = state
 }
 
@@ -64,11 +69,16 @@ func (d *Dispatcher) SetRegistrar(registrar core.RegistrarIF) {
   d.RegistrarService = registrar
 }
 
+func (d *Dispatcher) SetEvents(events core.EventsIF) {
+  d.EventsService = events
+}
+
 func (d *Dispatcher) Dispatch() core.Response{
   fqmn := d.Route.FQMN
   iam := d.IAM()
   router := d.Router()
   state := d.State()
+  events := d.Events()
   registrar := d.Registrar()
   consentString := iam.Provider.DIDSession()
   jwt := core.JWT{Public:consentString}
@@ -83,6 +93,16 @@ func (d *Dispatcher) Dispatch() core.Response{
     fmt.Println(fmt.Sprintf("   DISPATCHING TO STATE\n    CONTRACT: %s\n    FUNCTION: %s\n",contract,function))
     state.Read(jwt,contract,function,[]byte{},"")
     rStr = fmt.Sprintf("0xS:R;%:%",contract,function)
+  } else if d.Route.Service == "0xE:"{
+    s:= strings.Split(d.Route.ResourceString,":")
+    channel := s[0]
+    payload := ""
+    if len(s) > 1 {
+        payload = s[1]
+    }
+    fmt.Println(fmt.Sprintf("   DISPATCHING TO EVENTS\n    CHANNEL: %s\n    PAYLOAD: %s\n",channel,payload))
+    events.Read(jwt,channel,payload)
+    rStr = fmt.Sprintf("0xE:R;%:%",channel,payload)
   } else if d.Route.Service == "0xI:"{
     fmt.Println("   DISPATCHING TO IAM\n")
     rStr = fmt.Sprintf("0xI;%","FUTURE")
@@ -94,6 +114,7 @@ func (d *Dispatcher) Dispatch() core.Response{
     d.Route = router.ParseRoute(jwt,r)
     return d.Dispatch()
   }
+
   res := core.Response{FQMN:fqmn,ResponseString:rStr}
   return res
 }

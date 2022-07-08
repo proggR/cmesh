@@ -35,14 +35,21 @@ func (s *StateProvider) Test() {
 }
 
 func (s *StateProvider) TestRouterResolution() {
-  fmt.Println("\n\nTHE FINAL TEST\n   TESTING STATE PROVIDER ROUTING RESOLUTION\n")
   router := s.Router()
   iam := s.IAM()
-  route := router.ParseRoute(iam.Jwt,core.Request{FQMN:"0xR:helloWorld.mcom"})
+
+  fmt.Println("\nTESTING EVENT ROUTING\n")
+  route := router.ParseRoute(iam.Jwt,core.Request{FQMN:"0xE:ch1:stuff"})
+  router.Dispatch(route)
+  fmt.Println("\n EVENT ROUTING TESTED\n")
+
+  fmt.Println("\n\nTHE FINAL TEST\n   TESTING STATE PROVIDER ROUTING RESOLUTION\n")
+
+  route = router.ParseRoute(iam.Jwt,core.Request{FQMN:"0xR:helloWorld.mcom"})
   fmt.Println(fmt.Sprintf("      Resource String Returned: %s\n      Dispatching Now\n",route.ResourceString))
 
   router.Dispatch(route)
-
+  // fqmn := dispatcher.Dispatch()
   fmt.Println(fmt.Sprintf(" FINAL TEST COMPLETE\n"))
   fmt.Println(fmt.Sprintf(" ROUTED FROM STATE PROVIDER -> ROUTER -> DISPATCHER -> REGISTRAR -> DISPATCHER -> STATE PROVIDER\n"))
 }

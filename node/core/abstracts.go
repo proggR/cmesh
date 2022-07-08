@@ -70,8 +70,9 @@ type RouterIF interface{
   HasDispatcher() bool
   Attach(DispatcherIF)
   Dispatch(Route) Response
-  SetState(StateProviderIF)
+  SetState(StateIF)
   SetRegistrar(RegistrarIF)
+  SetEvents(EventsIF)
   Ping() string
   Session() string
   Handshake(bool) string
@@ -85,14 +86,16 @@ type DispatcherIF interface {
     ProtectedIF
     IsInitialized() bool
     Init()
+    SetRoute(Route)
     Dispatch() Response
     Connect(RouterIF)
     Test()
-    State()StateProviderIF
-    SetRoute(Route)
-    SetState(StateProviderIF)
-    Registrar()RegistrarIF
+    State() StateIF
+    SetState(StateIF)
+    Registrar() RegistrarIF
     SetRegistrar(RegistrarIF)
+    Events() EventsIF
+    SetEvents(EventsIF)
 }
 
 
@@ -102,11 +105,18 @@ type ServiceProviderIF interface {
   Attach(DispatcherIF)
   Test()
   Service() string
+  IsInitialized() bool
 }
 
-type StateProviderIF interface{
+type StateIF interface{
   ServiceProviderIF
   Read(JWT, string, string, []byte, string)
   Write(JWT, string, string, []byte, string)
   TestRouterResolution()
+}
+
+type EventsIF interface{
+  ServiceProviderIF
+  Read(JWT, string, string)
+  Write(JWT, string, string)
 }

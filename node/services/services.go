@@ -4,11 +4,11 @@ import(
   "fmt"
   core "node/core"
 )
-
-var RouterService core.RouterIF
-var StateProvider core.StateProviderIF
-var RegistrarService core.Registrar
-var DispatcherService Dispatcher
+//
+// var RouterService core.RouterIF
+// var StateProvider core.StateProviderIF
+// var RegistrarService core.Registrar
+// var DispatcherService Dispatcher
 
 type ServiceProviderSeed struct {
   core.ProtectedSeed
@@ -22,12 +22,17 @@ func (sp *ServiceProviderSeed) Service() string {
 }
 
 func (sp *ServiceProviderSeed) Test() {
-  fmt.Println("SEED TEST")
+  fmt.Println("SERVICES TEST")
 }
 
 func (sp *ServiceProviderSeed) Attach(dispatcher core.DispatcherIF) {
   sp.DispatcherInst = dispatcher
 }
+
+func (sp *ServiceProviderSeed) IsInitialized() bool{
+  return sp.IsInitialized()
+}
+
 
 func (sp *ServiceProviderSeed) Connect(router core.RouterIF) core.ServiceProviderIF{
   r := router
@@ -39,9 +44,8 @@ func (sp *ServiceProviderSeed) Connect(router core.RouterIF) core.ServiceProvide
       fmt.Println("    Dispatcher Service Initialized And Connected To Router\n")
   }
 
-  ds := &DispatcherService
+
   sp.RouterInst = router
-  sp.Attach(ds)
   fmt.Println(fmt.Sprintf("      Attached service provider to dispatcher\n"))
 
   return sp

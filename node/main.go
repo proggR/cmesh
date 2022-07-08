@@ -6,6 +6,7 @@ import (
 
   registrarProvider "node/providers/registrar"
   stateProvider "node/providers/state/mock"
+  eventsProvider "node/providers/events/mock"
 )
 
 var RouterService core.Router
@@ -31,6 +32,7 @@ func main() {
     state := state_bootstrap()
 
     registrar_bootstrap()
+    events_bootstrap()
 
     fmt.Println("   Running Dispatcher Tests\n")
     // dispatcher := ServiceLayer.DispatcherTest()
@@ -71,6 +73,16 @@ func state_bootstrap() stateProvider.StateProvider{
   fmt.Println("   State Provider Loaded, Connected To Router & Dispatcher\n")
   fmt.Println("   State Bootstrapped\n")
   return sP
+}
+
+func events_bootstrap() eventsProvider.EventsProvider{
+  fmt.Println("   Initializing Event Provider\n")
+  ep := &eventsProvider.EventsProvider{} //RouterInst:router
+  r := &RouterService
+  eP := ep.Construct(r)
+  fmt.Println("   Event Provider Loaded, Connected To Router & Dispatcher\n")
+  fmt.Println("   Events Bootstrapped\n")
+  return eP
 }
 
 func registrar_bootstrap() registrarProvider.RegistrarProvider{
