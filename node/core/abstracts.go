@@ -105,9 +105,9 @@ type ServiceProviderIF interface {
   ProtectedIF
   Connect(RouterIF) ServiceProviderIF
   Attach(DispatcherIF)
-  Test()
   Service() string
   IsInitialized() bool
+  Test()
 }
 
 type StateIF interface{

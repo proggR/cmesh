@@ -192,19 +192,19 @@ func (d *Dispatcher) testRegistrar(){
 
   fmt.Println("   Client: Running Registrar Taken Name Registration With JWT\n")
   msg = rP.Register(jwt, "helloWorldExample.mcom", "0xS:0x001:goodnight_world")
-  fmt.Println(fmt.Sprintf("   Named Function Mapping Response (should be blank): %s\n",msg))
+  fmt.Println(fmt.Sprintf("    Named Function Mapping Response (should be blank): %s\n",msg))
 
   fmt.Println("   Client: Running Registrar Named Contract Resolution With JWT\n")
   msg = rP.Resolve(jwt, "helloWorld.mcom")
-  fmt.Println(fmt.Sprintf("   Named Contract FQMN Response: %s\n",msg))
+  fmt.Println(fmt.Sprintf("    Named Contract FQMN Response: %s\n",msg))
 
   fmt.Println("   Client: Running Registrar Named Function Resolution With JWT\n")
   msg = rP.Resolve(jwt, "helloWorldExample.mcom")
-  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
+  fmt.Println(fmt.Sprintf("    Named Function FQMN Response: %s\n",msg))
 
   fmt.Println("   Client: Running Registrar Unregistered Name Resolution With JWT\n")
   msg = rP.Resolve(jwt, "google.com")
-  fmt.Println(fmt.Sprintf("   Named Function FQMN Response: %s\n",msg))
+  fmt.Println(fmt.Sprintf("    Named Function FQMN Response: %s\n",msg))
 }
 
 func (d *Dispatcher) parse_test_routes(){

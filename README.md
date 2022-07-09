@@ -60,11 +60,15 @@ A state service layer has been started at `services/state.go` and a Mock service
 
 EVM is very solid and well established tech, but opting for a more open standard leaning into WASM feels like the better call. Rust devs will be able to port existing smart contracts to the environment, and AssemblyScript will be the supported/native language to keep CMesh smart contracts both accessible to newcomers, and portable to/from other distributed systems if devs so choose.
 
-### Consensus & Cluster Management: RAFT (potentially via Swarmkit)
+### Consensus & Cluster Management: RAFT
 
 ![RAFT](assets/images/raft.gif)
 
 RAFT conensus is an established, fault tolerant and fast consensus mechanism that will underwrite state requests requiring auth, as well as any state change event handling, which for the moment I assume will include any necessary IRMA session state (haven't dug deep enough to determine IRMA session needs or related persistence strat).
+
+Mock consensus providers will assume honesty and just modulus the transaction ID to select the "leader" index, which then all followers will process and add to the consensus of. In the real implementation, consensus would only require X number of confirmations and then miners would stop processing that consensus request.
+
+Need to dive deeper down this rabbit hole to fully model the machine, but [Swarmkit](https://github.com/moby/swarmkit) and [Dragonboat](https://github.com/lni/dragonboat) are on the radar for post-mock consensus providers.
 
 ### ZKProofs: Undecided
 

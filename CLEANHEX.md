@@ -1,16 +1,16 @@
 # Operation SCREAMING CLEANHEX
 
-In running into walls and realizing the errors of my ways were from not applying DDD to the model, this doc is meant to keep referring back to as I hack and slash pieces apart. As I dive deeper into Go, I want to remember 3 words: Screaming CLEAN Hex 
+In running into walls and realizing the errors of my ways were from not applying DDD to the model, this doc is meant to keep referring back to as I hack and slash pieces apart. As I dive deeper into Go, I want to remember 3 words: Screaming CLEAN Hex
 
-## SCREAMING
+## [SCREAMING](https://levelup.gitconnected.com/what-is-screaming-architecture-f7c327af9bb2)
 - Project hierarchy should scream domain level needs in your face at first glance
 
-## CLEAN
+## [CLEAN](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - All dependencies flow inward (FWs/Drivers->Interface Adapters->App Business Rules->Enterprise Business Rules)
 - domain/entity (enterprise business rules) level constructs are more abstractly defined, interface adapters like controllers/presenters/gateways more concretely defined
 - [IF]Controller-> ([UC]Input Port <- ([UC]Interactor)) -> [IF]Presenter -> [UC]Output Port
 
-## HEX
+## [HEX](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software))
 - Ports defines component->component I/O and mappings
 - Adapters defines component->external I/O and mappings
 
@@ -32,7 +32,7 @@ In running into walls and realizing the errors of my ways were from not applying
 /miners
 -> events.go (more to follow, but events are central to the machine so this miner should be mocked first)
 
-#### Entities
+#### Domain Entities
 ##### IAM/JWT
 = every action requires access to/validation of the current state of the JWT
 - ValidatePermissions() should incorporate the roughed out Permissions/ACL structs using FQMNs to bind DID->Permissions->FQMN
@@ -47,3 +47,35 @@ In running into walls and realizing the errors of my ways were from not applying
 = core service of the node (the node _is_ the router), and embedded into/accessible by every service out of necessity (this is where port abstractions could come in handy)
 - should return a formatted route struct that is then passed to a service layer dispatcher that invokes the necessary service/action
 - services themselves may/should be able to make FQMN requests of the router mid runtime. in future versions these added requests/results will be compiled into a zk hash to help guarantee computation, but for now simply the ability to invoke FQMN resolution from each service should suffice for the toy
+
+##### Dispatcher
+- tracks server layer instances
+- takes a formed Route struct and dispatches request to the servicer layer instances, returning the resulting Response struct
+
+#### Service Entities
+- defines `Connect()`, `Attach()`, `Service()` methods (note: attach is likely unnecessary/will be culled from API)
+
+##### ServiceProviderIF
+- defines
+
+##### StateProviderIF
+- Read/Write exposed that checks with IAM before action
+
+##### EventProviderIF
+- manages state pertaining to events (likely extension of state provider)
+
+
+### Added References
+
+- [Building Microservices with Event Sourcing/CQRS in Go using gRPC, NATS Streaming and CockroachDB](https://shijuvar.medium.com/building-microservices-with-event-sourcing-cqrs-in-go-using-grpc-nats-streaming-and-cockroachdb-983f650452aa)
+- [DDD In Golang](https://gist.github.com/eduncan911/c1614e684e4802d626ae)
+- [Applying CLEAN To Go](https://manuel.kiessling.net/2012/09/28/applying-the-clean-architecture-to-go-applications/)
+- [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/)
+- [Event Sourcing In Go](https://victoramartinez.com/posts/event-sourcing-in-go/)
+- [Tactical Design](https://www.damianopetrungaro.com/posts/ddd-using-golang-tactical-design/)
+- [DDD Wiki](https://en.wikipedia.org/wiki/Domain-driven_design)
+- [CQS/CQRS Wiki](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)
+- [DI Wiki](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
+- [Godel Machine (particularly the rewarding models portion)](https://analyticsindiamag.com/what-is-a-godel-machine-and-is-it-conscious/)
+- [Pipernet + Son of Anton Isn't (quite) nonsense](https://www.reddit.com/r/SiliconValleyHBO/comments/e57hca/pipernet_son_of_anton_isnt_quite_nonsense/)
+- [The Silicon Valley Whiteboard](https://i.redd.it/lfwa4nxsr6241.png)
