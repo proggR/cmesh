@@ -50,9 +50,10 @@ func (i *IAM) ValidatePermissions(jwt JWT, component string, serviceProvider str
   if jwt.Public == "" || jwt.Public != iamSession {
     fmt.Println("No valid IAM session to validate")
     return false
-  } else {
-    fmt.Println(fmt.Sprintf("JWT: %s ; IAM: %s", jwt.Public, ""))
   }
+  //  else {
+  //   fmt.Println(fmt.Sprintf("JWT: %s ; IAM: %s", jwt.Public, ""))
+  // }
   // if action == "write"{
   //   return false
   // }

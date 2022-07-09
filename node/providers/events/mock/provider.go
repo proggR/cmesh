@@ -35,7 +35,6 @@ func (e *EventsProvider) Test(){
 }
 
 func (e *EventsProvider) Read(iamSession core.JWT, channel string, payload string) string{
-    fmt.Println(fmt.Sprintf("   Session public:%s",iamSession.Public))
     iam := e.IAM()
     if !iam.ValidatePermissions(iamSession, "events", "mock", fmt.Sprintf("%s:%s", channel, payload), "read") {
       msg := fmt.Sprintf("   Event Read permissions for %s:%s denied for JWT %s",channel,payload,iamSession.Public)

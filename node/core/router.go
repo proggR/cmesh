@@ -104,7 +104,7 @@ func (res *Response) Body() ResponseBodyIF {
 
 // func (r *Router) Route(fqdn string) {
 func (r *Router) Route(req Request) Response {
-  msg := fmt.Sprintf("Routing to %s",req.FQMN)
+  msg := fmt.Sprintf("   Routing to %s",req.FQMN)
   fmt.Println(msg)
 
   route := r.ParseRoute(r.iam.Jwt,req)

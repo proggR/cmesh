@@ -22,15 +22,16 @@ func main() {
 
     network_test(router)
 
-    fmt.Println("\n\nRouter Services Started & Handshake Tested.\n")
+    fmt.Println("\n\nRouter Services Started & Handshake Tested.\n\n      :)\n\n")
 
-    fmt.Println(" Initializing Protected Services\n")
+    fmt.Println("Initializing Protected Services\n")
 
     state, router := state_bootstrap(router)
     _, router = registrar_bootstrap(router)
     _, router = events_bootstrap(router)
 
-    fmt.Println("   Running Dispatcher Tests\n")
+    fmt.Println(" Protected Services Loaded\n\n      :)\n\n")
+    fmt.Println(" Running Dispatcher Tests\n")
 
     router.DispatcherTest()
 
@@ -46,11 +47,12 @@ func main() {
 
     state.TestRouterResolution()
 
-    fmt.Println(" Services Initialized\n\n")
+    fmt.Println(" Protected Services Tested\n\n      :)\n\n")
 
-    fmt.Println("CMesh Node & Protected Services Initalized\n:)")
+    fmt.Println("CMesh Node & Protected Services Initalized\n\n      :)\n\n\n")
 
     miner_bootstrap(router)
+    fmt.Println("\n\nCMesh Miner Initialized\n\nNode Now Operating on Cumulus with DID #<insert when nodes have id>\n   (PS: no its not, this is still just a toy model against mock providers)\n   Local Admin Dashboard @ localhost:<insert future port>\n\n      :)\n\nPPS: Currently looking for fun fullstack/backend/systems/blockchain work so if you're recruiting hmu @ proggR@pm.me before I accidentally remake the internet from scratch out of sheer boredom... after already attempting to make a model for new people/commons owned/operated/underwritten money with fractional.foundation :\\... SOS, pls send halp!\n\n   <3\n\n")
 }
 
 func iam_bootstrap() core.IAM{
@@ -66,7 +68,6 @@ func miner_bootstrap(router core.Router){
   r := &router
   MinerService.Connect(r)
   MinerService.Start()
-  fmt.Println("CMesh Miner Initialized\n:)")
 }
 
 func state_bootstrap(router core.Router) (stateProvider.StateProvider, core.Router){
@@ -74,7 +75,7 @@ func state_bootstrap(router core.Router) (stateProvider.StateProvider, core.Rout
   sp := &stateProvider.StateProvider{}
   r := &router
   sP := sp.Construct(r)
-  fmt.Println("   State Provider Loaded, Connected To Router & Dispatcher\n")
+  fmt.Println("    State Provider Loaded, Connected To Router & Dispatcher\n")
   fmt.Println("   State Bootstrapped\n")
   return sP, router
 }
@@ -84,7 +85,7 @@ func events_bootstrap(router core.Router) (eventsProvider.EventsProvider, core.R
   ep := &eventsProvider.EventsProvider{}
   r := &router
   eP := ep.Construct(r)
-  fmt.Println("   Event Provider Loaded, Connected To Router & Dispatcher\n")
+  fmt.Println("    Event Provider Loaded, Connected To Router & Dispatcher\n")
   fmt.Println("   Events Bootstrapped\n")
   return eP, router
 }
@@ -94,7 +95,7 @@ func registrar_bootstrap(router core.Router) (registrarProvider.RegistrarProvide
   reg := &registrarProvider.RegistrarProvider{}
   r := &router
   rP := reg.Construct(r)
-  fmt.Println("   Registrar Service Loaded, Connected To Router & Dispatcher\n")
+  fmt.Println("    Registrar Service Loaded, Connected To Router & Dispatcher\n")
   fmt.Println("   Registrar Bootstrapped\n")
   return rP, router
 }
