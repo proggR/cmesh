@@ -3,6 +3,7 @@ package miners
 import(
   "fmt"
   "hash/fnv"
+  tail "github.com/hpcloud/tail"
   core "node/core"
   services "node/services"
 )
@@ -14,16 +15,26 @@ type EventsMiner struct{
   Transactions []string
 }
 
+// var Tail bool
+
 func (e *EventsMiner) Start(){
-  tx := []string{"0xS:0x001:blah_blah","0xR:helloWorldExample.mcom","0xE:events.state.contracts.0x001.blah_blah:read"}
-  e.Transactions = tx
+  // tx := []string{"0xS:0x001:blah_blah","0xR:helloWorldExample.mcom","0xE:events.state.contracts.0x001.blah_blah:read"}
+  // e.Transactions = tx
   e.Mine()
 }
 
 func (e *EventsMiner) Mine(){
-  for i := range e.Transactions{
-    e.forward(e.Transactions[i])
+  Tail, err := tail.TailFile("/home/sysadmin/systems/cmesh/node/miners/events/mock/events.requests.log", tail.Config{Follow: true})
+  if err != nil {
+    fmt.Println(fmt.Sprintf("      ERROR: %s",err))
   }
+  for line := range Tail.Lines {
+      fmt.Println(line.Text)
+      e.forward(line.Text)
+  }
+  // for i := range e.Transactions{
+  //   e.forward(e.Transactions[i])
+  // }
 }
 
 func (e *EventsMiner) forward(fqmn string) core.Response{

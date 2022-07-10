@@ -15,7 +15,8 @@ type JSON struct{
 }
 
 type MinerIF interface{
-
+  Start()
+  Mine()
 }
 
 type RequestIF interface {
