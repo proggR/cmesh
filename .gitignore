@@ -1,5 +1,6 @@
 .env
 .*Conf
+*.log
 node/core/.state
 node/core/.state/*
 client/core/.state

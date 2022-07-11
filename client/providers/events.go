@@ -4,6 +4,7 @@ import(
   "fmt"
   "hash/fnv"
   "os"
+  "time"
   // tail "github.com/hpcloud/tail"
   // core "node/core"
   // services "node/services"
@@ -29,12 +30,18 @@ func (e *EventsMiner) Mine(){
   check(err)
   defer f.Close()
   tx := []string{"0xS:0x001:blah_blah","0xR:helloWorldExample.mcom","0xE:events.state.contracts.0x001.blah_blah:read"}
-  for i := 0; i < 5 ; i++ {
+  start := time.Now()
+  txCount := 0
+  for i := 0; i < 10000 ; i++ {
     for t := range tx {
+        txCount++
         fmt.Println(tx[t])
         e.forward(f,tx[t])
     }
   }
+
+  elapsed := time.Since(start)
+  fmt.Println(fmt.Sprintf("\n\nSent %d transactions in %s \n",txCount,elapsed))
   // for i := range e.Transactions{
   //   e.forward(e.Transactions[i])
   // }

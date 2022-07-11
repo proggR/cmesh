@@ -22,11 +22,11 @@ In this model, the CMesh node running is acting as a router for the network, pro
 
 The Router supports a function oriented address scheme I'm calling `FQMN` (fully qualified mesh name... original, I know...) that routes requests to protected services and returns the response while also invoking a consensus check on the response (to be defined as mock consensus service is rolled).
 
-A 4 component (IAM, Router/Dispatcher, Registrar, State) toy model is now cobbled together, first initializing the IAM service, then passing it to the Router service, and then after running its IRMA handshake test the router initializes its protected services (for now state & registrar), connecting each to the router and attaching each to the Dispatcher, and then runs through the `testState`, `testRegistrar` (necessary to succeed for the next test to resolve most addresses) and `parse_test_routes` methods of the Dispatcher, which uses the router to resolve route objects that are then dispatched to the appropriate services, calling back to the IAM service to authenticate requests before invoking state calls (read or write makes no difference, JWT needs to be valid first).
+A 5 component (IAM, Router/Dispatcher, Registrar, State, Events) toy model is now cobbled together, first initializing the IAM service, then passing it to the Router service, and then after running its IRMA handshake test the router initializes its protected services (for now state, registrar and events), connecting each to the router and attaching each to the Dispatcher, and then runs through the `testState`, `testRegistrar` (necessary to succeed for the next test to resolve most addresses) and `parse_test_routes` methods of the Dispatcher, which uses the router to resolve route objects that are then dispatched to the appropriate services, calling back to the IAM service to authenticate requests before invoking state calls (read or write makes no difference, JWT needs to be valid first). Once initialized the router and its protected services are passed to the Events Miner which listens for changes to a log file. The client module currently just spams 30000 requests at the log file that the node is able to process (no IRMA handshaking/JWT going on atm, just FQMN strings spammed for the miner to process)
 
 The Registrar is used to create and resolve named services, much like a normal domain registrar, making it easier to stitch distributed systems together.
 
-Examples of FQMN structure and usage can be found in `services/router.go`
+Examples of FQMN structure and usage can be found in `services/router.go`.
 
 ### Identity Management and Auth: IRMA
 

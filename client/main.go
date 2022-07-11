@@ -1,7 +1,7 @@
 package main
 
 import(
-  eventsProvider "client/events/providers"
+  eventsProvider "client/providers"
 )
 
 func main() {
