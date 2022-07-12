@@ -36,7 +36,7 @@ func (e *EventsMiner) Mine(){
     for t := range tx {
         txCount++
         fmt.Println(tx[t])
-        e.forward(f,tx[t])
+        e.forward(f,txCount,tx[t])
     }
   }
 
@@ -47,13 +47,13 @@ func (e *EventsMiner) Mine(){
   // }
 }
 
-func (e *EventsMiner) forward(f *os.File, fqmn string){
+func (e *EventsMiner) forward(f *os.File, id int, fqmn string){
 
   // router := e.Router()
   // res := router.Route(core.Request{FQMN:fqmn})
   // str := res.String()
   // router.Route(core.Request{FQMN:fmt.Sprintf("0xEW:events.mined:%d.%d",e.hash(fqmn),e.hash(str))})
-  f.WriteString(fmt.Sprintf("%s\n",fqmn))
+  f.WriteString(fmt.Sprintf("%d;%s\n",id,fqmn))
   // os.WriteFile(file,fqmn)
 }
 

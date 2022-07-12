@@ -45,6 +45,7 @@ import(
 //
 
 type Request struct {
+  EventID int
   FQMN string
   Jwt JWT
 }
@@ -71,9 +72,18 @@ type Router struct {
 type Route struct {
   FQMN string
   Service string
+  Request RequestIF
   Action string
   ResourceString string
   ResponseCode int
+}
+
+func (req *Request) ID() int{
+  return req.EventID
+}
+
+func (req *Request) Fqmn() string {
+  return req.FQMN
 }
 
 func (req *Request) Identify(jwt JWT){
@@ -83,6 +93,7 @@ func (req *Request) Identify(jwt JWT){
 func (req *Request) JWT() JWT {
   return req.Jwt
 }
+
 
 func (res *Response) String() string {
   return res.ResponseString
@@ -186,14 +197,15 @@ func (r *Router) ParseRoute(jwt JWT, req Request) Route{
   // reg, _ := regexp.Compile("/^(0xS:|0xR:|0xI:|0xE:)((.*)((0xS:|0xR:|0xI:|0xE:)(.*))((0xS:|0xR:|0xI:|0xE:)(.*))((0xS:|0xR:|0xI:|0xE:)(.*)))/")
   regex := *regexp.MustCompile(`^(0xS:|0xSW:|0xR:|0xRW:|0xI:|0xE:|0xEW:)((.*)((0xS:|0xSW:|0xR:|0xRW:|0xI:|0xE:|0xEW:)(.*))?((0xS:|0xSW:|0xR:|0xRW:|0xI:|0xE:|0xEW:)(.*))?((0xS:|0xSW:|0xR:|0xRW:|0xI:|0xE:|0xEW:)(.*))?)`)
   res := regex.FindAllStringSubmatch(fqmn, -1)
+  request := &req
   if len(res) == 0 {
     fmt.Println("   NO MATCHES? If unexpected, investigate")
   }
-  var rt Route = Route{FQMN: fqmn, ResponseCode: 400}
+  var rt Route = Route{FQMN: fqmn, Request: request, ResponseCode: 400}
   for i := range res {
       //like Java: match.group(1), match.gropu(2), etc
       fmt.Printf("    OpCode: %s,\n    Unresolved Address: %s,\n    Address String: %s,\n    Unresolved SubAddress 1: %s\n", res[i][1], res[i][2], res[i][3], res[i][4])
-      rt = Route{FQMN:fqmn,Service: res[i][1],ResourceString:res[i][3], ResponseCode: 200}
+      rt = Route{FQMN:fqmn,Service: res[i][1],Request:request,ResourceString:res[i][3], ResponseCode: 200}
   }
 
   return rt

@@ -1,5 +1,6 @@
 package services
 import(
+  "os"
   "fmt"
   "strings"
   core "node/core"
@@ -14,7 +15,6 @@ type Dispatcher struct {
   EventsService core.EventsIF
 }
 
-
 // func (d *Dispatcher)Provider(provider ServiceProviderIF){
 //   if provider.Service() == "0xS:" {
 //     p := provider
@@ -28,14 +28,6 @@ type Dispatcher struct {
 //     fmt.Println(fmt.Sprintf("UNKNOWN SERVICE, UNABLE TO DISPATCH TO: %s\n",provider.Service()))
 //   }
 // }
-
-func (d *Dispatcher) Test(){
-  d.testState()
-  d.testRegistrar()
-  d.parse_test_routes()
-  fmt.Println("   DISPATCHER TEST: OK\n")
-  // return "DISPATCHER TEST: OK"
-}
 
 func (d *Dispatcher) IsInitialized() bool{
   return d.Initialized
@@ -119,7 +111,7 @@ func (d *Dispatcher) Dispatch() core.Response{
     fmt.Println("   DISPATCHING TO REGISTRAR READ\n")
     fqmn := registrar.Resolve(jwt, d.Route.ResourceString)
     fmt.Println(fmt.Sprintf("   RESOLVED FQMN: %s\n",fqmn))
-    r := core.Request{FQMN:fqmn}
+    r := core.Request{EventID:d.Route.Request.ID(), FQMN:fqmn}
     d.Route = router.ParseRoute(jwt,r)
     return d.Dispatch()
   } else if d.Route.Service == "0xRW:"{
@@ -132,21 +124,34 @@ func (d *Dispatcher) Dispatch() core.Response{
   }
 
   res := core.Response{FQMN:fqmn,ResponseString:rStr}
+  d.Record(d.Route, res)
   return res
+}
+
+func (d *Dispatcher) Record(req core.Route, res core.Response){
+  file  := "/home/sysadmin/systems/cmesh/node/miners/events/mock/events.responses.log"
+  // f, err := os.Create(file)
+  f, err := os.OpenFile(file, os.O_APPEND|os.O_WRONLY, 0644)
+  if err != nil {
+      panic(err)
+  }
+
+  defer f.Close()
+
+  f.WriteString(fmt.Sprintf("%d;%s;%s\n",req.Request.ID(),req.Request.Fqmn(),res.String()))
 }
 
 func (d *Dispatcher) Connect(router core.RouterIF){
   d.RouterInst = router
 }
-//
-// func (d *Dispatcher) Router() core.RouterIF{
-//   return d.RouterInst
-// }
-//
-// func (d *Dispatcher) IAM() core.IAM{
-//   r := d.Router()
-//   return r.IAM()
-// }
+
+func (d *Dispatcher) Test(){
+  d.testState()
+  d.testRegistrar()
+  d.parse_test_routes()
+  fmt.Println("   DISPATCHER TEST: OK\n")
+  // return "DISPATCHER TEST: OK"
+}
 
 func (d *Dispatcher) testState(){
   fmt.Println("  Running State Test Sequence")

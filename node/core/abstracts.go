@@ -22,6 +22,8 @@ type MinerIF interface{
 type RequestIF interface {
   Identify(JWT)
   JWT() JWT
+  ID() int
+  Fqmn() string
 }
 
 type ResponseIF interface {
@@ -93,6 +95,7 @@ type DispatcherIF interface {
     SetRoute(Route)
     Dispatch() Response
     Connect(RouterIF)
+    Record(Route,Response)
     Test()
     State() StateIF
     SetState(StateIF)

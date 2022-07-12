@@ -3,6 +3,8 @@ package miners
 import(
   "fmt"
   "hash/fnv"
+  "strings"
+  "strconv"
   tail "github.com/hpcloud/tail"
   core "node/core"
   services "node/services"
@@ -30,18 +32,26 @@ func (e *EventsMiner) Mine(){
   }
   for line := range Tail.Lines {
       fmt.Println(line.Text)
-      e.forward(line.Text)
+      s := strings.Split(line.Text,";")
+      i, err := strconv.Atoi(s[0])
+      if err != nil {
+          // ... handle error
+          panic(err)
+      }
+      e.forward(i,s[1])
   }
   // for i := range e.Transactions{
   //   e.forward(e.Transactions[i])
   // }
 }
 
-func (e *EventsMiner) forward(fqmn string) core.Response{
+func (e *EventsMiner) forward(id int, fqmn string) core.Response{
   router := e.Router()
-  res := router.Route(core.Request{FQMN:fqmn})
+  fmt.Println(fmt.Sprintf("\n\nPROCESSING ID: %d; FQMN: %s\n\n",id,fqmn))
+
+  res := router.Route(core.Request{EventID: id, FQMN:fqmn})
   str := res.String()
-  router.Route(core.Request{FQMN:fmt.Sprintf("0xEW:events.mined:%d.%d",e.hash(fqmn),e.hash(str))})
+  router.Route(core.Request{EventID: id,FQMN:fmt.Sprintf("0xEW:events.mined:%d.%d",e.hash(fmt.Sprintf("%d;%s",id,fqmn)),e.hash(str))})
   return res
 }
 

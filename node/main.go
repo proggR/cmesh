@@ -39,7 +39,7 @@ func main() {
 
     fmt.Println("   Route/Response Tests\n")
 
-    res := router.Route(core.Request{FQMN:"0xR:helloWorldExample.mcom"})
+    res := router.Route(core.Request{EventID: 0, FQMN:"0xR:helloWorldExample.mcom"})
     str := res.String()
     fmt.Println(fmt.Sprintf("  Route/Response Test Results:\n   String: %s\n",str))
 
